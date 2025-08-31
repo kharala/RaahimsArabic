@@ -1,0 +1,14 @@
+{
+  "name": "Raahim's Arabic",
+  "short_name": "Raahim's Arabic",
+  "theme_color": "#0000FF",  // This is a nice blue shade
+  "background_color": "#0000FF",  // The same blue for consistency
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "icon.png",  // This should be the 512x512 icon you created
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
