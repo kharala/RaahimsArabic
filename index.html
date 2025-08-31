@@ -19,9 +19,9 @@
       box-sizing: border-box;
     }
 
-    h1 { 
-      color: #2e8b57; 
-      margin: 0 0 18px 0; 
+    h1 {
+      color: #2e8b57;
+      margin: 0 0 18px 0;
       position: sticky;
       top: 0;
       background: #f5f5f5;
@@ -43,16 +43,61 @@
       box-sizing: border-box;
     }
 
+    /* wrapper that moves with scroll (holds progress + mouth) */
+    .mouth-wrapper {
+      position: sticky;
+      top: 80px; /* below header */
+      z-index: 2000;
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none; /* let clicks through except on interactive children */
+    }
+
+    /* Progress bar (inside mouth-wrapper, above the mouth) */
+    .progress-container {
+      pointer-events: auto; /* allow interactions (if you later add buttons) */
+      width: 100%;
+      max-width: 360px;
+      margin-bottom: 10px;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 0 12px;
+    }
+
+    .progress-text {
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: #e6e6e6;
+      border-radius: 999px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4ECDC4, #2e8b57);
+      border-radius: 999px;
+      transition: width 0.45s cubic-bezier(.2,.9,.2,1);
+    }
+
     /* Floating mouth circle */
     .mouth {
-      position: sticky;
-      top: 80px; /* Position below the header */
-      z-index: 2000;
-      margin: 0 auto 20px auto;
+      pointer-events: auto; /* mouth interactions (video) should be clickable */
+      margin: 0 auto 18px auto;
       transition: transform 0.18s ease;
       background: white;
       border-radius: 50%;
-      border: 6px solid #FFFF00; /* Thicker  border */
+      border: 6px solid #FFFF00; /* Thicker border */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -60,6 +105,10 @@
       overflow: hidden;
       box-sizing: border-box;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      position: relative; /* not sticky anymore, wrapper is sticky */
+      width: 140px; /* default will be overridden by JS syncMouthSize */
+      height: 140px;
+      z-index: 2001;
     }
     .mouth.playing { transform: scale(1.03); }
 
@@ -111,13 +160,13 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(var(--grid-cols), 1fr);
-      grid-template-rows: repeat(6, 1fr);
+      grid-auto-rows: 1fr;
       gap: var(--gap);
       width: 100%;
-      height: 100%;
       align-content: start;
       z-index: 1;
-      margin-top: 20px;
+      margin-top: 6px;
+      box-sizing: border-box;
     }
 
     .letter {
@@ -154,33 +203,59 @@
     .letter:nth-child(5n+4) { border-color: #FFBE0B; }
     .letter:nth-child(5n+5) { border-color: #A5DD9B; }
 
-    @media (max-width: 520px) { 
-      :root { --grid-cols: 4; } 
-      .mouth {
-        top: 70px;
-      }
+    @media (max-width: 520px) {
+      :root { --grid-cols: 4; }
+      .mouth-wrapper { top: 70px; }
+      .mouth { width: 110px; height: 110px; }
+      .progress-container { max-width: 250px; }
     }
+
+    /* Confetti canvas */
+    canvas#confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3000;
+    }
+
   </style>
 </head>
 <body>
   <h1>Raahim's Arabic</h1>
 
   <div class="container">
-    <!-- Floating mouth circle -->
-    <div class="circle mouth" id="mouth" aria-label="شكل الفم">
-      <img id="mouthDefault" src="mouths/default.png" alt="Default mouth">
-      <video id="mouthVideo" playsinline muted></video>
-      
-      <!-- Ring animation overlay -->
-      <div class="mouth-overlay" id="mouthOverlay" aria-hidden="true">
-        <svg id="mouthOverlaySvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-          <circle id="overlayCircle" class="overlay-ring" cx="0" cy="0" r="0" stroke-width="6"></circle>
-        </svg>
+    <!-- Mouth wrapper (sticky) contains progress bar + mouth so they move together -->
+    <div class="mouth-wrapper" id="mouthWrapper">
+      <div class="progress-container" id="progressContainer" aria-hidden="false">
+        <div class="progress-text" id="progressText">0 / 30</div>
+        <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <!-- Floating mouth circle -->
+      <div class="circle mouth" id="mouth" aria-label="شكل الفم">
+        <img id="mouthDefault" src="mouths/default.png" alt="Default mouth">
+        <video id="mouthVideo" playsinline muted></video>
+
+        <!-- Ring animation overlay -->
+        <div class="mouth-overlay" id="mouthOverlay" aria-hidden="true">
+          <svg id="mouthOverlaySvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+            <circle id="overlayCircle" class="overlay-ring" cx="0" cy="0" r="0" stroke-width="6"></circle>
+          </svg>
+        </div>
       </div>
     </div>
 
+    <!-- Letters grid -->
     <div class="grid" id="grid" role="list"></div>
   </div>
+
+  <!-- Confetti canvas -->
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+  <!-- Celebration sound (external URL so you don't need to add files locally) -->
+  <audio id="celebrationSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3" preload="auto"></audio>
 
   <script>
     /*********************** Configuration ***********************/
@@ -192,22 +267,33 @@
       "qaaf","kaaf","laam","meem","noon",
       "waw","hhaa","hamza","yaa","yaaa"
     ];
-    const MIN_RESET_MS = 300;          
-    const META_TIMEOUT_MS = 1500;      
-    const AUDIO_FALLBACK_MS = 4500;    
-    const OVERALL_SAFE_MS = 12000;     
-    const MOUTH_SCALE = 1.5;           
+    const MIN_RESET_MS = 300;
+    const META_TIMEOUT_MS = 1500;
+    const AUDIO_FALLBACK_MS = 4500;
+    const OVERALL_SAFE_MS = 12000;
+    const MOUTH_SCALE = 1.5;
+    const AUTO_RESET_AFTER_COMPLETE_MS = 3000; // auto-reset delay after 30/30
+    const CONFETTI_DURATION_MS = 3000; // how long confetti runs
 
+    /*********************** DOM refs ***********************/
     const grid = document.getElementById('grid');
     const mouth = document.getElementById('mouth');
     const mouthVideo = document.getElementById('mouthVideo');
     const mouthDefault = document.getElementById('mouthDefault');
 
-    // Add overlay elements
     const mouthOverlay = document.getElementById('mouthOverlay');
     const mouthOverlaySvg = document.getElementById('mouthOverlaySvg');
     const overlayCircle = document.getElementById('overlayCircle');
 
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const confettiCtx = confettiCanvas.getContext('2d');
+
+    const celebrationSound = document.getElementById('celebrationSound');
+
+    /*********************** State ***********************/
     const state = {
       currentEl: null,
       currentKey: null,
@@ -215,10 +301,16 @@
       audioTimer: null,
       metaTimeout: null,
       overallTimer: null,
-      overlayCircumference: null,  // Add overlay state
-      overlayActive: false         // Add overlay state
+      overlayCircumference: null,
+      overlayActive: false,
+      playedLetters: new Set(),
+      completed: false,
+      confettiPieces: [],
+      confettiAnimationId: null,
+      confettiTimeoutId: null,
     };
 
+    /*********************** Build grid ***********************/
     function buildGrid() {
       grid.innerHTML = '';
       LETTER_KEYS.forEach((k) => {
@@ -227,15 +319,13 @@
         el.setAttribute('data-key', k);
         el.setAttribute('role', 'listitem');
         el.innerHTML = `<img src="images/${k}.png" alt="${k}">`;
-
-        // Every letter clickable
         el.addEventListener('click', () => onLetterClick(el, k));
-
         grid.appendChild(el);
       });
     }
     buildGrid();
 
+    /*********************** Size sync ***********************/
     function syncMouthSize() {
       const sample = grid.querySelector('.letter');
       if (!sample) return;
@@ -243,11 +333,12 @@
       const size = Math.max(48, Math.round(rect.width * MOUTH_SCALE));
       mouth.style.width = size + 'px';
       mouth.style.height = size + 'px';
-      updateOverlayForSize(size);  // Add overlay sizing
+      updateOverlayForSize(size);
     }
     window.addEventListener('load', () => { syncMouthSize(); setTimeout(syncMouthSize, 60); });
-    window.addEventListener('resize', syncMouthSize);
+    window.addEventListener('resize', () => { syncMouthSize(); resizeConfettiCanvas(); });
 
+    /*********************** Timers / cleanup ***********************/
     function clearAudioTimer() { if (state.audioTimer) { clearTimeout(state.audioTimer); state.audioTimer = null; } }
     function clearMetaTimeout() { if (state.metaTimeout) { clearTimeout(state.metaTimeout); state.metaTimeout = null; } }
     function clearOverallTimer() { if (state.overallTimer) { clearTimeout(state.overallTimer); state.overallTimer = null; } }
@@ -278,8 +369,7 @@
       unloadAudio();
       unloadVideo();
       clearOverallTimer();
-      overlayReset();  // Reset overlay
-
+      overlayReset();
       if (resetUI && state.currentEl) {
         state.currentEl.classList.remove('active');
         state.currentEl = null;
@@ -296,9 +386,13 @@
       Array.from(grid.children).forEach(child => child.classList.remove('shrink'));
       unloadAudio();
       clearOverallTimer();
-      overlayReset();  // Reset overlay
+      overlayReset();
     }
 
+    window.addEventListener('pagehide', () => { cancelPlayback(true); stopConfettiImmediately(); });
+    window.addEventListener('beforeunload', () => { cancelPlayback(true); stopConfettiImmediately(); });
+
+    /*********************** Click handling ***********************/
     function onLetterClick(el, key) {
       cancelPlayback(true);
 
@@ -316,8 +410,15 @@
       state.overallTimer = setTimeout(() => {
         immediateResetByAudio();
       }, OVERALL_SAFE_MS);
+
+      // Progress tracking: add key only once (Set)
+      if (!state.playedLetters.has(key)) {
+        state.playedLetters.add(key);
+        updateProgress();
+      }
     }
 
+    /*********************** Audio handling ***********************/
     function startAudioAndScheduleReset(key, letterEl) {
       unloadAudio();
       clearAudioTimer();
@@ -348,11 +449,7 @@
 
       const p = audio.play();
       if (p && typeof p.then === 'function') {
-        p.then(() => {
-          overlayStart();  // Start overlay animation when audio starts
-        }).catch(() => {
-          scheduleResetFromDuration(null, audio, letterEl);
-        });
+        p.then(() => { overlayStart(); }).catch(() => { scheduleResetFromDuration(null, audio, letterEl); });
       }
       audio.onended = () => { immediateResetByAudio(); };
       audio.onerror = () => { immediateResetByAudio(); };
@@ -385,20 +482,16 @@
         mouthVideo.load();
 
         const v = mouthVideo.play();
-        if (v && typeof v.then === 'function') {
-          v.catch(() => {});
-        }
+        if (v && typeof v.then === 'function') { v.catch(() => {}); }
 
         mouthVideo.onended = () => { unloadVideo(); };
         mouthVideo.onerror = () => { unloadVideo(); };
-      } catch (e) {
-        unloadVideo();
-      }
+      } catch (e) { unloadVideo(); }
     }
 
-    // Overlay animation functions
+    /*********************** Overlay animation functions ***********************/
     function updateOverlayForSize(sizePx) {
-      const borderPx = 6; // Match the border width
+      const borderPx = 6; // match border
       mouthOverlaySvg.setAttribute('viewBox', `0 0 ${sizePx} ${sizePx}`);
       mouthOverlaySvg.setAttribute('width', sizePx);
       mouthOverlaySvg.setAttribute('height', sizePx);
@@ -416,55 +509,186 @@
     }
 
     function overlayStart() {
-      if (!state.overlayCircumference) { 
-        const size = parseFloat(getComputedStyle(mouth).width) || 100; 
-        updateOverlayForSize(size); 
+      if (!state.overlayCircumference) {
+        const size = parseFloat(getComputedStyle(mouth).width) || 100;
+        updateOverlayForSize(size);
       }
       if (state.overlayActive) return;
-      
+
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const c = state.overlayCircumference || 0;
-      
-      if (prefersReduced) { 
-        overlayCircle.style.strokeDashoffset = '0'; 
-        state.overlayActive = true; 
-        return; 
+
+      if (prefersReduced) {
+        overlayCircle.style.strokeDashoffset = '0';
+        state.overlayActive = true;
+        return;
       }
-      
+
       overlayCircle.style.strokeDashoffset = `${c}`;
       void overlayCircle.getBoundingClientRect();
-      requestAnimationFrame(() => { 
-        overlayCircle.style.strokeDashoffset = '0'; 
-        state.overlayActive = true; 
+      requestAnimationFrame(() => {
+        overlayCircle.style.strokeDashoffset = '0';
+        state.overlayActive = true;
       });
     }
 
     function overlayReset() {
       if (!state.overlayActive && !state.overlayCircumference) return;
-      
+
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const c = state.overlayCircumference || 0;
-      
-      if (prefersReduced) { 
-        overlayCircle.style.strokeDashoffset = `${c}`; 
-        state.overlayActive = false; 
-        return; 
+
+      if (prefersReduced) {
+        overlayCircle.style.strokeDashoffset = `${c}`;
+        state.overlayActive = false;
+        return;
       }
-      
+
       overlayCircle.style.strokeDashoffset = `${c}`;
       state.overlayActive = false;
     }
 
-    window.addEventListener('pagehide', () => cancelPlayback(true));
-    window.addEventListener('beforeunload', () => cancelPlayback(true));
+    /*********************** Progress & Completion ***********************/
+    function updateProgress() {
+      const count = state.playedLetters.size;
+      const percent = (count / LETTER_KEYS.length) * 100;
+      progressFill.style.width = percent + "%";
+      progressText.textContent = `${count} / ${LETTER_KEYS.length}`;
 
-    // Initialize overlay on load
+      // If completed and not yet handled, trigger celebration
+      if (count >= LETTER_KEYS.length && !state.completed) {
+        state.completed = true;
+        celebrate();
+        // auto reset after configured ms
+        setTimeout(() => {
+          resetProgress();
+        }, AUTO_RESET_AFTER_COMPLETE_MS);
+      }
+    }
+
+    function resetProgress() {
+      // stop any confetti if still running
+      stopConfetti();
+      state.playedLetters.clear();
+      state.completed = false;
+      updateProgress();
+    }
+
+    /*********************** Confetti (canvas) ***********************/
+    function resizeConfettiCanvas() {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      confettiCanvas.width = Math.floor(window.innerWidth * dpr);
+      confettiCanvas.height = Math.floor(window.innerHeight * dpr);
+      confettiCanvas.style.width = window.innerWidth + "px";
+      confettiCanvas.style.height = window.innerHeight + "px";
+      confettiCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resizeConfettiCanvas();
+
+    function createConfettiPieces(amount = 140) {
+      const w = window.innerWidth;
+      const pieces = [];
+      for (let i = 0; i < amount; i++) {
+        pieces.push({
+          x: Math.random() * w,
+          y: Math.random() * -window.innerHeight * 0.6,
+          vx: (Math.random() - 0.5) * 6,
+          vy: Math.random() * 4 + 2,
+          r: Math.random() * 6 + 4,
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 10,
+          color: `hsl(${Math.floor(Math.random() * 360)},70%,60%)`,
+        });
+      }
+      return pieces;
+    }
+
+    function drawConfettiFrame() {
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      const pieces = state.confettiPieces;
+      for (let i = 0; i < pieces.length; i++) {
+        const p = pieces[i];
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate(p.rot * Math.PI / 180);
+        confettiCtx.fillStyle = p.color;
+        confettiCtx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
+        confettiCtx.restore();
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.rotSpeed;
+
+        if (p.y > window.innerHeight + 20) {
+          // recycle
+          p.y = Math.random() * -window.innerHeight * 0.4;
+          p.x = Math.random() * window.innerWidth;
+          p.vx = (Math.random() - 0.5) * 6;
+          p.vy = Math.random() * 4 + 2;
+        }
+      }
+      state.confettiAnimationId = requestAnimationFrame(drawConfettiFrame);
+    }
+
+    function startConfetti() {
+      // accessibility: respect prefers-reduced-motion
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      stopConfettiImmediately();
+      resizeConfettiCanvas();
+      state.confettiPieces = createConfettiPieces(140);
+      state.confettiAnimationId = requestAnimationFrame(drawConfettiFrame);
+      // stop after CONFETTI_DURATION_MS automatically
+      state.confettiTimeoutId = setTimeout(() => stopConfetti(), CONFETTI_DURATION_MS);
+    }
+
+    function stopConfetti() {
+      if (state.confettiAnimationId) {
+        cancelAnimationFrame(state.confettiAnimationId);
+        state.confettiAnimationId = null;
+      }
+      if (state.confettiTimeoutId) {
+        clearTimeout(state.confettiTimeoutId);
+        state.confettiTimeoutId = null;
+      }
+      // fade/clear canvas
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      state.confettiPieces = [];
+    }
+
+    function stopConfettiImmediately() {
+      if (state.confettiAnimationId) cancelAnimationFrame(state.confettiAnimationId);
+      if (state.confettiTimeoutId) clearTimeout(state.confettiTimeoutId);
+      state.confettiAnimationId = null;
+      state.confettiTimeoutId = null;
+      state.confettiPieces = [];
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+
+    /*********************** Celebration ***********************/
+    function celebrate() {
+      // play celebration sound (respect user's reduced-motion preference for visuals only)
+      try {
+        celebrationSound.currentTime = 0;
+        celebrationSound.play().catch(()=>{ /* play might be blocked until user interacts; that's fine */ });
+      } catch (e) {}
+
+      startConfetti();
+    }
+
+    /*********************** Initialization ***********************/
+    // initialize progress to 0
+    updateProgress();
+
+    // ensure overlay sizing after load
     window.addEventListener('load', () => {
       setTimeout(() => {
         const sizePx = parseFloat(getComputedStyle(mouth).width) || 180;
         updateOverlayForSize(sizePx);
       }, 100);
     });
+
+    // make sure confetti canvas resizes on orientation change
+    window.addEventListener('orientationchange', resizeConfettiCanvas);
   </script>
 </body>
 </html>
