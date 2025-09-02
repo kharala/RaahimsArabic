@@ -114,6 +114,16 @@
       margin: 0;
     }
 
+
+    /* Curved text that lives in the arc gap */
+.gap-text {
+  font-size: 8px;
+  font-weight: 700;
+  fill: #333;
+  pointer-events: none; /* don’t steal clicks */
+}
+
+
     .mouth {
       transition: transform 0.18s ease;
       background: white;
@@ -254,10 +264,34 @@
         <!-- Circular progress SVG -->
         <div class="circular-progress" id="circularProgress">
           <svg class="progress-ring" viewBox="0 0 100 100">
-              <!-- r = 47 so the 6px stroke stays fully inside the 100x100 viewBox -->
-            <circle class="progress-ring-circle" cx="50" cy="50" r="47" />
-            <circle class="progress-ring-value" id="progressRingValue" cx="50" cy="50" r="47" />
-          </svg>
+  <!-- We draw on a 100x100 viewBox; circles use r=47 so 6px stroke stays inside -->
+
+  <!-- 1) Define the small 60° gap arc as a path.
+       NOTE: This path is defined for the *unrotated* ring (gap from ~1 o’clock to 3 o’clock).
+       Your .circular-progress has rotate(-60deg), so this ends up centered at the top (11–1 o’clock). -->
+  <defs>
+    <!-- Center (50,50), radius 47.
+         Start at θ=300° (upper-right): (x≈73.5, y≈9.3)
+         End   at θ=  0° (right):       (x=97,   y=50) -->
+    <path id="gapArcPath"
+          d="M 73.5 9.3 A 47 47 0 0 1 97 50" />
+  </defs>
+
+  <!-- 2) The background circle and the yellow progress arc -->
+  <circle class="progress-ring-circle" cx="50" cy="50" r="47" />
+  <circle class="progress-ring-value" id="progressRingValue" cx="50" cy="50" r="47" />
+
+  <!-- 3) Curved text that sits along the gap arc -->
+  <text class="gap-text" direction="ltr">
+    <!-- center the text in the middle of the gap arc -->
+    <textPath id="gapTextPath"
+              href="#gapArcPath"
+              startOffset="50%"
+              text-anchor="middle"
+              dominant-baseline="central">0 / 30</textPath>
+  </text>
+</svg>
+
 
         </div>
         
@@ -318,6 +352,8 @@
     const mouthDefault = document.getElementById('mouthDefault');
     const progressRingValue = document.getElementById('progressRingValue');
     const progressText = document.getElementById('progressText');
+    const gapTextPath = document.getElementById('gapTextPath');
+
 
     const mouthOverlay = document.getElementById('mouthOverlay');
     const mouthOverlaySvg = document.getElementById('mouthOverlaySvg');
@@ -610,6 +646,10 @@
       
       // Update text
       progressText.textContent = `${count} / ${total}`;
+      if (gapTextPath) {
+        gapTextPath.textContent = `${count} / ${total}`;
+      }
+
 
       // If completed and not yet handled, trigger celebration
       if (count >= total && !state.completed) {
