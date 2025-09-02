@@ -85,7 +85,7 @@
     .progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #4ECDC4, #2e8b57);
+      background: linear-gradient(90deg, #FFFF00, #FFD700);
       border-radius: 999px;
       transition: width 0.45s cubic-bezier(.2,.9,.2,1);
     }
@@ -255,7 +255,7 @@
   <canvas id="confettiCanvas" aria-hidden="true"></canvas>
 
   <!-- Celebration sound (external URL so you don't need to add files locally) -->
-  <audio id="celebrationSound" src="https://www.soundjay.com/human/sounds/applause-8.mp3" preload="auto"></audio>
+  <audio id="celebrationSound" src="sounds/yay.mp3" preload="auto"></audio>
 
   <script>
     /*********************** Configuration ***********************/
@@ -272,8 +272,8 @@
     const AUDIO_FALLBACK_MS = 4500;
     const OVERALL_SAFE_MS = 12000;
     const MOUTH_SCALE = 1.5;
-    const AUTO_RESET_AFTER_COMPLETE_MS = 3000; // auto-reset delay after 30/30
-    const CONFETTI_DURATION_MS = 3000; // how long confetti runs
+    const AUTO_RESET_AFTER_COMPLETE_MS = 7000; // auto-reset delay after 30/30
+    const CONFETTI_DURATION_MS = 7000; // how long confetti runs
 
     /*********************** DOM refs ***********************/
     const grid = document.getElementById('grid');
@@ -308,6 +308,8 @@
       confettiPieces: [],
       confettiAnimationId: null,
       confettiTimeoutId: null,
+      confettiFadeOpacity: 1,
+      confettiFadeStartTime: null,
     };
 
     /*********************** Build grid ***********************/
@@ -558,7 +560,9 @@
       // If completed and not yet handled, trigger celebration
       if (count >= LETTER_KEYS.length && !state.completed) {
         state.completed = true;
-        celebrate();
+            setTimeout(() => {
+            celebrate();
+            }, 2000); // 2 second delay
         // auto reset after configured ms
         setTimeout(() => {
           resetProgress();
@@ -585,84 +589,156 @@
     }
     resizeConfettiCanvas();
 
-    function createConfettiPieces(amount = 140) {
-      const w = window.innerWidth;
-      const pieces = [];
-      for (let i = 0; i < amount; i++) {
-        pieces.push({
-          x: Math.random() * w,
-          y: Math.random() * -window.innerHeight * 0.6,
-          vx: (Math.random() - 0.5) * 6,
-          vy: Math.random() * 4 + 2,
-          r: Math.random() * 6 + 4,
-          rot: Math.random() * 360,
-          rotSpeed: (Math.random() - 0.5) * 10,
-          color: `hsl(${Math.floor(Math.random() * 360)},70%,60%)`,
-        });
-      }
-      return pieces;
-    }
+    function createConfettiPieces(amount = 200) {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const pieces = [];
+    for (let i = 0; i < amount; i++) {
+    pieces.push({
+      x: Math.random() * w,
+      y: Math.random() * -h * 0.8, // Start higher up
+      vx: (Math.random() - 0.5) * 8, // More horizontal spread
+      vy: Math.random() * 5 + 3, // Faster falling
+      r: Math.random() * 10 + 8, // Bigger pieces (was 4-10, now 8-18)
+      rot: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 12, // Faster rotation
+      color: `hsl(${Math.floor(Math.random() * 360)},90%,60%)`, // More saturated
+      shape: Math.floor(Math.random() * 3), // Different shapes
+    });
+  }
+  return pieces;
+}
 
     function drawConfettiFrame() {
-      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-      const pieces = state.confettiPieces;
-      for (let i = 0; i < pieces.length; i++) {
-        const p = pieces[i];
-        confettiCtx.save();
-        confettiCtx.translate(p.x, p.y);
-        confettiCtx.rotate(p.rot * Math.PI / 180);
-        confettiCtx.fillStyle = p.color;
+  // Clear with transparency to allow fade effect
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  
+  // Set global alpha for fade effect
+  confettiCtx.globalAlpha = state.confettiFadeOpacity;
+  
+  const pieces = state.confettiPieces;
+  
+  for (let i = 0; i < pieces.length; i++) {
+    const p = pieces[i];
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rot * Math.PI / 180);
+    confettiCtx.fillStyle = p.color;
+    
+    // Draw different shapes
+    switch(p.shape) {
+      case 0: // Rectangle (original)
         confettiCtx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
-        confettiCtx.restore();
-
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rot += p.rotSpeed;
-
-        if (p.y > window.innerHeight + 20) {
-          // recycle
-          p.y = Math.random() * -window.innerHeight * 0.4;
-          p.x = Math.random() * window.innerWidth;
-          p.vx = (Math.random() - 0.5) * 6;
-          p.vy = Math.random() * 4 + 2;
-        }
-      }
-      state.confettiAnimationId = requestAnimationFrame(drawConfettiFrame);
+        break;
+      case 1: // Circle
+        confettiCtx.beginPath();
+        confettiCtx.arc(0, 0, p.r/2, 0, Math.PI * 2);
+        confettiCtx.fill();
+        break;
+      case 2: // Triangle
+        confettiCtx.beginPath();
+        confettiCtx.moveTo(0, -p.r/2);
+        confettiCtx.lineTo(p.r/2, p.r/2);
+        confettiCtx.lineTo(-p.r/2, p.r/2);
+        confettiCtx.closePath();
+        confettiCtx.fill();
+        break;
     }
+    
+    confettiCtx.restore();
 
+    // Update position
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rot += p.rotSpeed;
+    
+    // Add slight gravity effect
+    p.vy += 0.05;
+
+    // Recycle when out of screen
+    if (p.y > window.innerHeight + 20 || p.x < -20 || p.x > window.innerWidth + 20) {
+      p.y = Math.random() * -window.innerHeight * 0.5;
+      p.x = Math.random() * window.innerWidth;
+      p.vx = (Math.random() - 0.5) * 8;
+      p.vy = Math.random() * 4 + 2;
+    }
+  }
+  
+  // Reset global alpha
+  confettiCtx.globalAlpha = 1;
+  
+  // Only continue animation if not in fade mode
+  if (state.confettiFadeStartTime === null) {
+    state.confettiAnimationId = requestAnimationFrame(drawConfettiFrame);
+  }
+}
     function startConfetti() {
-      // accessibility: respect prefers-reduced-motion
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      stopConfettiImmediately();
-      resizeConfettiCanvas();
-      state.confettiPieces = createConfettiPieces(140);
-      state.confettiAnimationId = requestAnimationFrame(drawConfettiFrame);
-      // stop after CONFETTI_DURATION_MS automatically
-      state.confettiTimeoutId = setTimeout(() => stopConfetti(), CONFETTI_DURATION_MS);
-    }
-
+  // accessibility: respect prefers-reduced-motion
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  stopConfettiImmediately();
+  resizeConfettiCanvas();
+  
+  // Reset fade state
+  state.confettiFadeOpacity = 1;
+  state.confettiFadeStartTime = null;
+  
+  state.confettiPieces = createConfettiPieces(200);
+  state.confettiAnimationId = requestAnimationFrame(drawConfettiFrame);
+  // stop after CONFETTI_DURATION_MS automatically
+  state.confettiTimeoutId = setTimeout(() => stopConfetti(), CONFETTI_DURATION_MS);
+}
     function stopConfetti() {
-      if (state.confettiAnimationId) {
-        cancelAnimationFrame(state.confettiAnimationId);
-        state.confettiAnimationId = null;
-      }
-      if (state.confettiTimeoutId) {
-        clearTimeout(state.confettiTimeoutId);
-        state.confettiTimeoutId = null;
-      }
-      // fade/clear canvas
+  if (state.confettiAnimationId) {
+    cancelAnimationFrame(state.confettiAnimationId);
+    state.confettiAnimationId = null;
+  }
+  if (state.confettiTimeoutId) {
+    clearTimeout(state.confettiTimeoutId);
+    state.confettiTimeoutId = null;
+  }
+  
+  // Start fade out animation instead of immediately clearing
+  state.confettiFadeOpacity = 1;
+  state.confettiFadeStartTime = Date.now();
+  
+  // Start fade animation
+  function fadeOut() {
+    const elapsed = Date.now() - state.confettiFadeStartTime;
+    const fadeDuration = 2500; // 2.5 seconds
+    
+    if (elapsed < fadeDuration) {
+      // Calculate current opacity
+      state.confettiFadeOpacity = 1 - (elapsed / fadeDuration);
+      
+      // Continue animation
+      state.confettiAnimationId = requestAnimationFrame(fadeOut);
+    } else {
+      // Fade complete, clear everything
+      state.confettiFadeOpacity = 0;
       confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
       state.confettiPieces = [];
+      state.confettiAnimationId = null;
+      return;
     }
+    
+    // Draw with current opacity
+    drawConfettiFrame();
+  }
+  
+  // Start the fade animation
+  state.confettiAnimationId = requestAnimationFrame(fadeOut);
+}
 
     function stopConfettiImmediately() {
-      if (state.confettiAnimationId) cancelAnimationFrame(state.confettiAnimationId);
-      if (state.confettiTimeoutId) clearTimeout(state.confettiTimeoutId);
-      state.confettiAnimationId = null;
-      state.confettiTimeoutId = null;
-      state.confettiPieces = [];
-      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    }
+  if (state.confettiAnimationId) cancelAnimationFrame(state.confettiAnimationId);
+  if (state.confettiTimeoutId) clearTimeout(state.confettiTimeoutId);
+  state.confettiAnimationId = null;
+  state.confettiTimeoutId = null;
+  state.confettiPieces = [];
+  state.confettiFadeOpacity = 1;
+  state.confettiFadeStartTime = null;
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+}
 
     /*********************** Celebration ***********************/
     function celebrate() {
