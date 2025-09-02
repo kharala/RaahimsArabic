@@ -57,43 +57,64 @@
       pointer-events: none; /* let clicks through except on interactive children */
     }
 
-    /* Progress bar (inside mouth-wrapper, above the mouth) */
-    .progress-container {
-      pointer-events: auto; /* allow interactions (if you later add buttons) */
+    /* Floating mouth circle with circular progress */
+    .mouth-container {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 18px auto;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .circular-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      max-width: 360px;
-      margin-bottom: 10px;
+      height: 100%;
+      transform: rotate(-60deg); /* Start at top (clean) */
+      shape-rendering: geometricPrecision;
+    }
+
+    .progress-ring {
+      width: 100%;
+      height: 100%;
+      shape-rendering: geometricPrecision;
+    }
+
+    .progress-ring-circle {
+      fill: none;
+      stroke: transparent;
+      stroke-width: 6;
+    }
+
+    .progress-ring-value {
+      fill: none;
+      stroke: #FFD700;
+      stroke-width: 6;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.45s cubic-bezier(.2,.9,.2,1);
+    }
+
+    .progress-text-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       text-align: center;
-      box-sizing: border-box;
-      padding: 0 12px;
+      pointer-events: none;
     }
 
     .progress-text {
       font-size: 14px;
-      margin-bottom: 6px;
       color: #333;
+      margin: 0;
     }
 
-    .progress-bar {
-      width: 100%;
-      height: 12px;
-      background: #e6e6e6;
-      border-radius: 999px;
-      overflow: hidden;
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
-    }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #FFFF00, #FFD700);
-      border-radius: 999px;
-      transition: width 0.45s cubic-bezier(.2,.9,.2,1);
-    }
-
-    /* Floating mouth circle */
     .mouth {
-      pointer-events: auto; /* mouth interactions (video) should be clickable */
-      margin: 0 auto 18px auto;
       transition: transform 0.18s ease;
       background: white;
       border-radius: 50%;
@@ -105,7 +126,7 @@
       overflow: hidden;
       box-sizing: border-box;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      position: relative; /* not sticky anymore, wrapper is sticky */
+      position: relative;
       width: 140px; /* default will be overridden by JS syncMouthSize */
       height: 140px;
       z-index: 2001;
@@ -206,8 +227,8 @@
     @media (max-width: 520px) {
       :root { --grid-cols: 4; }
       .mouth-wrapper { top: 70px; }
+      .mouth-container { width: 140px; height: 140px; }
       .mouth { width: 110px; height: 110px; }
-      .progress-container { max-width: 250px; }
     }
 
     /* Confetti canvas */
@@ -228,21 +249,36 @@
   <div class="container">
     <!-- Mouth wrapper (sticky) contains progress bar + mouth so they move together -->
     <div class="mouth-wrapper" id="mouthWrapper">
-      <div class="progress-container" id="progressContainer" aria-hidden="false">
-        <div class="progress-text" id="progressText">0 / 30</div>
-        <div class="progress-bar" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
-      </div>
-
-      <!-- Floating mouth circle -->
-      <div class="circle mouth" id="mouth" aria-label="شكل الفم">
-        <img id="mouthDefault" src="mouths/default.png" alt="Default mouth">
-        <video id="mouthVideo" playsinline muted></video>
-
-        <!-- Ring animation overlay -->
-        <div class="mouth-overlay" id="mouthOverlay" aria-hidden="true">
-          <svg id="mouthOverlaySvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-            <circle id="overlayCircle" class="overlay-ring" cx="0" cy="0" r="0" stroke-width="6"></circle>
+      <!-- Circular progress container -->
+      <div class="mouth-container" id="mouthContainer">
+        <!-- Circular progress SVG -->
+        <div class="circular-progress" id="circularProgress">
+          <svg class="progress-ring" viewBox="0 0 100 100">
+              <!-- r = 47 so the 6px stroke stays fully inside the 100x100 viewBox -->
+            <circle class="progress-ring-circle" cx="50" cy="50" r="47" />
+            <circle class="progress-ring-value" id="progressRingValue" cx="50" cy="50" r="47" />
           </svg>
+
+        </div>
+        
+        <!-- Progress text in the center -->
+        <div class="progress-text-container">
+          <div class="progress-text" id="progressText">0 / 30</div>
+        </div>
+        
+        <!-- Floating mouth circle -->
+        <div class="circle mouth" id="mouth" aria-label="شكل الفم">
+          <img id="mouthDefault" src="mouths/default.png" alt="Default mouth">
+          <video id="mouthVideo" playsinline muted></video>
+
+          <!-- Ring animation overlay -->
+          <div class="mouth-overlay" id="mouthOverlay" aria-hidden="true">
+            <svg id="mouthOverlaySvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100">
+                <!-- initial centered values; updateOverlayForSize() will set exact values -->
+              <circle id="overlayCircle" class="overlay-ring" cx="50" cy="50" r="44" stroke-width="6"></circle>
+            </svg>
+          </div>    
+
         </div>
       </div>
     </div>
@@ -280,13 +316,12 @@
     const mouth = document.getElementById('mouth');
     const mouthVideo = document.getElementById('mouthVideo');
     const mouthDefault = document.getElementById('mouthDefault');
+    const progressRingValue = document.getElementById('progressRingValue');
+    const progressText = document.getElementById('progressText');
 
     const mouthOverlay = document.getElementById('mouthOverlay');
     const mouthOverlaySvg = document.getElementById('mouthOverlaySvg');
     const overlayCircle = document.getElementById('overlayCircle');
-
-    const progressFill = document.getElementById('progressFill');
-    const progressText = document.getElementById('progressText');
 
     const confettiCanvas = document.getElementById('confettiCanvas');
     const confettiCtx = confettiCanvas.getContext('2d');
@@ -335,6 +370,12 @@
       const size = Math.max(48, Math.round(rect.width * MOUTH_SCALE));
       mouth.style.width = size + 'px';
       mouth.style.height = size + 'px';
+      
+      // Update container size to match
+      const containerSize = Math.round(size * 1.3);
+      document.getElementById('mouthContainer').style.width = containerSize + 'px';
+      document.getElementById('mouthContainer').style.height = containerSize + 'px';
+      
       updateOverlayForSize(size);
     }
     window.addEventListener('load', () => { syncMouthSize(); setTimeout(syncMouthSize, 60); });
@@ -550,19 +591,32 @@
       state.overlayActive = false;
     }
 
-    /*********************** Progress & Completion ***********************/
+    /*********************** Circular Progress & Completion ***********************/
     function updateProgress() {
       const count = state.playedLetters.size;
-      const percent = (count / LETTER_KEYS.length) * 100;
-      progressFill.style.width = percent + "%";
-      progressText.textContent = `${count} / ${LETTER_KEYS.length}`;
+      const total = LETTER_KEYS.length;
+      const percent = (count / total) * 100;
+      
+     // Update circular progress
+      // get radius from the SVG element so JS math always matches the SVG
+      const radius = parseFloat(progressRingValue.getAttribute('r')) || 47;
+      const circumference = 2 * Math.PI * radius;
+      // Cover 80% of the circle (from 1 o'clock to 11 o'clock)
+      const arcLength = circumference * (5/6);
+      const offset = arcLength - (percent / 100) * arcLength;
+      
+      progressRingValue.style.strokeDasharray = `${arcLength} ${circumference}`;
+      progressRingValue.style.strokeDashoffset = offset;
+      
+      // Update text
+      progressText.textContent = `${count} / ${total}`;
 
       // If completed and not yet handled, trigger celebration
-      if (count >= LETTER_KEYS.length && !state.completed) {
+      if (count >= total && !state.completed) {
         state.completed = true;
-            setTimeout(() => {
-            celebrate();
-            }, 2000); // 2 second delay
+        setTimeout(() => {
+          celebrate();
+        }, 2000); // 2 second delay
         // auto reset after configured ms
         setTimeout(() => {
           resetProgress();
