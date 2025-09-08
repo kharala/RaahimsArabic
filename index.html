@@ -224,6 +224,13 @@
       pointer-events: none;
     }
 
+    .letter.previous {
+      filter: grayscale(100%);
+      opacity: 0.6;
+      /* pointer-events stays enabled so it remains clickable */
+}
+
+
     .letter.active { transform: scale(1.95); z-index: 500; }
     .letter.shrink { transform: scale(0.88); opacity: 0.85; }
     .letter.inactive { filter: grayscale(100%); opacity: 0.6; pointer-events: none; }
@@ -471,31 +478,45 @@
     window.addEventListener('pagehide', () => { cancelPlayback(true); stopConfettiImmediately(); });
     window.addEventListener('beforeunload', () => { cancelPlayback(true); stopConfettiImmediately(); });
 
-    /*********************** Click handling ***********************/
-    function onLetterClick(el, key) {
-      cancelPlayback(true);
+    // ------------------------- Click handler (fixed) -------------------------
+function onLetterClick(el, key) {
+  cancelPlayback(true);
 
-      state.currentEl = el;
-      state.currentKey = key;
-      el.classList.add('active');
-      Array.from(grid.children).forEach(child => {
-        if (child !== el) child.classList.add('shrink');
-      });
+  state.currentEl = el;
+  state.currentKey = key;
+  el.classList.add('active');
+  Array.from(grid.children).forEach(child => {
+    if (child !== el) child.classList.add('shrink');
+  });
 
-      startAudioAndScheduleReset(key, el);
-      startVideoOverlay(key);
+  // Clear any existing timeout on this letter
+  if (el.grayscaleTimeout) {
+    clearTimeout(el.grayscaleTimeout);
+    el.grayscaleTimeout = null;
+  }
 
-      clearOverallTimer();
-      state.overallTimer = setTimeout(() => {
-        immediateResetByAudio();
-      }, OVERALL_SAFE_MS);
+  // Schedule grayscale effect after 4 seconds and *store the id* so we can cancel it
+  el.grayscaleTimeout = setTimeout(() => {
+    // If timeout wasn't cleared, apply class and cleanup reference
+    el.classList.add('previous');
+    el.grayscaleTimeout = null;
+  }, 4000);
 
-      // Progress tracking: add key only once (Set)
-      if (!state.playedLetters.has(key)) {
-        state.playedLetters.add(key);
-        updateProgress();
-      }
-    }
+  startAudioAndScheduleReset(key, el);
+  startVideoOverlay(key);
+
+  clearOverallTimer();
+  state.overallTimer = setTimeout(() => {
+    immediateResetByAudio();
+  }, OVERALL_SAFE_MS);
+
+  // Progress tracking: add key only once (Set)
+  if (!state.playedLetters.has(key)) {
+    state.playedLetters.add(key);
+    updateProgress();
+  }
+}
+
 
     /*********************** Audio handling ***********************/
     function startAudioAndScheduleReset(key, letterEl) {
@@ -834,16 +855,26 @@
   confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
 }
 
-    /*********************** Celebration ***********************/
-    function celebrate() {
-      // play celebration sound (respect user's reduced-motion preference for visuals only)
-      try {
-        celebrationSound.currentTime = 0;
-        celebrationSound.play().catch(()=>{ /* play might be blocked until user interacts; that's fine */ });
-      } catch (e) {}
-
-      startConfetti();
+    // ------------------------- Celebration (fixed) -------------------------
+function celebrate() {
+  // Cancel pending grayscale timeouts and remove previous class from all letters
+  document.querySelectorAll('.letter').forEach(letter => {
+    if (letter.grayscaleTimeout) {
+      clearTimeout(letter.grayscaleTimeout);
+      letter.grayscaleTimeout = null;
     }
+    letter.classList.remove('previous');
+  });
+
+  try {
+    celebrationSound.currentTime = 0;
+    celebrationSound.play().catch(() => {});
+  } catch (e) {}
+
+  startConfetti();
+}
+
+
 
     /*********************** Initialization ***********************/
     // initialize progress to 0
