@@ -235,11 +235,7 @@
     .letter.shrink { transform: scale(0.88); opacity: 0.85; }
     .letter.inactive { filter: grayscale(100%); opacity: 0.6; pointer-events: none; }
 
-    .letter:nth-child(5n+1) { border-color: #FF6B6B; }
-    .letter:nth-child(5n+2) { border-color: #4ECDC4; }
-    .letter:nth-child(5n+3) { border-color: #45B7D1; }
-    .letter:nth-child(5n+4) { border-color: #FFBE0B; }
-    .letter:nth-child(5n+5) { border-color: #A5DD9B; }
+    
 
     @media (max-width: 520px) {
       :root { --grid-cols: 4; }
@@ -344,6 +340,18 @@
       "qaaf","kaaf","laam","meem","noon",
       "waw","hhaa","hamza","yaa","yaaa"
     ];
+
+  const COLORS = [
+     "#000000","#000000","#000000","#4633CC","#000000",
+     "#000000","#FFFF12","#000000","#4633CC","#FFFF12",
+     "#DB0000","#DB0000","#000000","#FFFF12","#FFFF12",
+     "#FFFF12","#FFFF12","#000000","#FFFF12","#000000",
+     "#FFFF12","#000000","#000000","#000000","#000000",
+     "#000000","#000000","#000000","#000000","#000000",
+];
+
+
+
     const MIN_RESET_MS = 300;
     const META_TIMEOUT_MS = 1500;
     const AUDIO_FALLBACK_MS = 4500;
@@ -393,16 +401,24 @@
     /*********************** Build grid ***********************/
     function buildGrid() {
       grid.innerHTML = '';
-      LETTER_KEYS.forEach((k) => {
+      LETTER_KEYS.forEach((k, i) => {
+        const color = COLORS[i % COLORS.length]; // map color by index
         const el = document.createElement('div');
         el.className = 'letter circle';
         el.setAttribute('data-key', k);
         el.setAttribute('role', 'listitem');
         el.innerHTML = `<img src="images/${k}.png" alt="${k}">`;
-        el.addEventListener('click', () => onLetterClick(el, k));
-        grid.appendChild(el);
-      });
-    }
+
+                 // --- dynamic colour assignment ---
+       el.style.borderColor = color;
+    // optional: keep the color available in CSS var for other states
+            // el.style.setProperty('--letter-border', color);
+
+    el.addEventListener('click', () => onLetterClick(el, k));
+    grid.appendChild(el);
+  });
+}
+
     buildGrid();
 
     /*********************** Size sync ***********************/
