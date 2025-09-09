@@ -216,13 +216,14 @@
       aspect-ratio: 1/1;
       overflow: hidden;
 
-      /* two-layer background:
-     1) inner fill (padding-box) - keeps circle interior color (white here)
-     2) border gradient (border-box) - split left/right via CSS vars
-  */
+     
       background-image:
       linear-gradient(#ffffff, #ffffff),
-      linear-gradient(to right, var(--left-border,#4633CC) 50%, var(--right-border,#FFFF12) 50%);
+      linear-gradient(to right,
+      var(--left-border) 40%,       /* solid left */
+      var(--right-border) 60%       /* solid right */
+    );
+
       background-origin: padding-box, border-box;
       background-clip: padding-box, border-box;
       /* vendor prefix for older WebKit if needed */
