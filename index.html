@@ -210,10 +210,24 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      border: 3px solid;
+
+      border: 3px solid transparent;
       background: white;
       aspect-ratio: 1/1;
       overflow: hidden;
+
+      /* two-layer background:
+     1) inner fill (padding-box) - keeps circle interior color (white here)
+     2) border gradient (border-box) - split left/right via CSS vars
+  */
+      background-image:
+      linear-gradient(#ffffff, #ffffff),
+      linear-gradient(to right, var(--left-border,#4633CC) 50%, var(--right-border,#FFFF12) 50%);
+      background-origin: padding-box, border-box;
+      background-clip: padding-box, border-box;
+      /* vendor prefix for older WebKit if needed */
+      -webkit-background-clip: padding-box, border-box;
+
     }
 
     .letter img {
@@ -342,12 +356,37 @@
     ];
 
   const COLORS = [
-     "#000000","#000000","#000000","#4633CC","#000000",
-     "#000000","#FFFF12","#000000","#4633CC","#FFFF12",
-     "#DB0000","#DB0000","#000000","#FFFF12","#FFFF12",
-     "#FFFF12","#FFFF12","#000000","#FFFF12","#000000",
-     "#FFFF12","#000000","#000000","#000000","#000000",
-     "#000000","#000000","#000000","#000000","#000000",
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#4633CC","#4633CC"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#FFFF12","#FFFF12"],
+     ["#000000","#000000"],
+     ["#4633CC","#4633CC"],
+     ["#FFFF12","#FFFF12"],
+     ["#DB0000","#DB0000"],
+     ["#DB0000","#DB0000"],
+     ["#000000","#000000"],
+     ["#DB0000","#FFFF12"],
+     ["#FFFF12","#FFFF12"],
+     ["#FFFF12","#FFFF12"],
+     ["#4633CC","#FFFF12"],
+     ["#000000","#000000"],
+     ["#FFFF12","#FFFF12"],
+     ["#000000","#000000"],
+     ["#FFFF12","#FFFF12"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+     ["#000000","#000000"],
+
 ];
 
 
@@ -409,10 +448,22 @@
         el.setAttribute('role', 'listitem');
         el.innerHTML = `<img src="images/${k}.png" alt="${k}">`;
 
-                 // --- dynamic colour assignment ---
-       el.style.borderColor = color;
-    // optional: keep the color available in CSS var for other states
-            // el.style.setProperty('--letter-border', color);
+                 
+       // Determine left/right colours (support legacy single-string fallback)
+    const pair = COLORS[i % COLORS.length];
+      let left, right;
+    if (Array.isArray(pair)) {
+    [left, right] = pair;
+    } else {
+    left = right = pair || '#000';
+}
+
+                        // apply border split via CSS custom properties
+    el.style.border = '5px solid transparent';
+    el.style.setProperty('--left-border', left);
+    el.style.setProperty('--right-border', right);
+
+      
 
     el.addEventListener('click', () => onLetterClick(el, k));
     grid.appendChild(el);
