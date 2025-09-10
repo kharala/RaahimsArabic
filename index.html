@@ -269,6 +269,43 @@
       z-index: 3000;
     }
 
+    /* -------------------- Tick badge layer -------------------- */
+#tickLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: transparent;
+  height: 100%;
+  pointer-events: none; /* clicks pass through */
+  z-index: 1500;        /* above letters/mouth overlay but below confetti (confetti was 3000) */
+}
+
+/* Single tick badge (absolute page coords inside tickLayer) */
+.tick-badge {
+  position: absolute;
+  background: transparent;
+  transform: translate(-50%, -50%); /* center by left/top */
+  pointer-events: none;
+  display: none; /* toggled by JS */
+  z-index: 2501;
+  will-change: transform, opacity;
+}
+
+/* video & png use the badge size */
+.tick-badge video,
+.tick-badge img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  background: transparent;
+}
+
+
   </style>
 </head>
 <body>
@@ -338,6 +375,10 @@
     <!-- Letters grid -->
     <div class="grid" id="grid" role="list"></div>
   </div>
+
+  <!-- Tick UI layer - badges live here (keeps them outside letter filters) -->
+<div id="tickLayer" aria-hidden="true"></div>
+
 
   <!-- Confetti canvas -->
   <canvas id="confettiCanvas" aria-hidden="true"></canvas>
@@ -409,7 +450,6 @@
     const progressText = document.getElementById('progressText');
     const gapTextPath = document.getElementById('gapTextPath');
 
-
     const mouthOverlay = document.getElementById('mouthOverlay');
     const mouthOverlaySvg = document.getElementById('mouthOverlaySvg');
     const overlayCircle = document.getElementById('overlayCircle');
@@ -418,6 +458,22 @@
     const confettiCtx = confettiCanvas.getContext('2d');
 
     const celebrationSound = document.getElementById('celebrationSound');
+
+    const tickLayer = document.getElementById('tickLayer') || (() => {
+    const el = document.createElement('div');
+      el.id = 'tickLayer';
+      el.setAttribute('aria-hidden','true');
+      el.style.position = 'absolute';
+      el.style.top = '0';
+      el.style.left = '0';
+      el.style.width = '100%';
+      el.style.height = '100%';
+      el.style.pointerEvents = 'none';
+      el.style.zIndex = '2500';
+      document.body.appendChild(el);
+    return el;
+  })();
+
 
     /*********************** State ***********************/
     const state = {
@@ -439,37 +495,98 @@
     };
 
     /*********************** Build grid ***********************/
+    
     function buildGrid() {
       grid.innerHTML = '';
       LETTER_KEYS.forEach((k, i) => {
-        const color = COLORS[i % COLORS.length]; // map color by index
-        const el = document.createElement('div');
-        el.className = 'letter circle';
-        el.setAttribute('data-key', k);
-        el.setAttribute('role', 'listitem');
-        el.innerHTML = `<img src="images/${k}.png" alt="${k}">`;
+    const color = COLORS[i % COLORS.length]; // map color by index
+    const el = document.createElement('div');
+    el.className = 'letter circle';
+    el.setAttribute('data-key', k);
+    el.setAttribute('role', 'listitem');
+    el.innerHTML = `<img src="images/${k}.png" alt="${k}">`;
 
-                 
-       // Determine left/right colours (support legacy single-string fallback)
+    // Determine left/right colours (support legacy single-string fallback)
     const pair = COLORS[i % COLORS.length];
-      let left, right;
+    let left, right;
     if (Array.isArray(pair)) {
-    [left, right] = pair;
+      [left, right] = pair;
     } else {
-    left = right = pair || '#000';
-}
+      left = right = pair || '#000';
+    }
 
-                        // apply border split via CSS custom properties
+    // apply border split via CSS custom properties
     el.style.border = '4.5px solid transparent';
     el.style.setProperty('--left-border', left);
     el.style.setProperty('--right-border', right);
 
-      
+    // Create the tick-badge (kept outside the letter so letter filters don't affect it)
+    const tickContainer = document.createElement('div');
+    tickContainer.className = 'tick-badge';
+    tickContainer.setAttribute('data-key', k);
+    tickContainer.style.display = 'none'; // shown later by JS
 
+    // Create tick video element
+    const tickVideo = document.createElement('video');
+        // Do NOT set .src immediately on older Safari fallback approach below.
+        // We'll set src on browsers that support WebM.
+    tickVideo.preload = 'auto';
+    tickVideo.playsInline = true;
+    tickVideo.muted = false;               // required for autoplay in many browsers
+    tickVideo.style.display = 'none';     // hide until first frame ready
+    tickVideo.style.background = 'transparent';
+    tickVideo.setAttribute('aria-hidden', 'true');
+
+                                        // Create tick image fallback
+    const tickImg = document.createElement('img');
+    tickImg.src = `mouths/tick.png`;
+    tickImg.alt = 'tick';
+    tickImg.style.display = 'none';
+    tickImg.setAttribute('aria-hidden', 'true');
+
+      // Only attach webm src if browser claims to support it (basic capability test)
+    const canPlayWebm = document.createElement('video').canPlayType('video/webm; codecs="vp9,opus"') ||
+                    document.createElement('video').canPlayType('video/webm; codecs="vp9"');
+if (canPlayWebm) {
+  tickVideo.src = `mouths/tick.webm`;
+} else {
+  // fallback immediately to png for browsers that can't play webm/vp9
+  tickImg.style.display = 'block';
+}
+
+
+    // When the webm finishes, hide the video and show the png placeholder
+    tickVideo.onended = () => {
+      try { tickVideo.style.display = 'none'; } catch(e) {}
+      try { tickImg.style.display = 'block'; } catch(e) {}
+      el._tick && (el._tick.shown = true);
+      // ensure the container remains visible if showing the image
+      tickContainer.style.display = 'block';
+    };
+
+    tickContainer.appendChild(tickVideo);
+    tickContainer.appendChild(tickImg);
+    tickLayer.appendChild(tickContainer);
+
+    // Attach tick metadata to the letter element so we can schedule/clear it later
+    el._tick = {
+      container: tickContainer,
+      video: tickVideo,
+      img: tickImg,
+      timeout: null,
+      shown: false
+    };
+
+    // Click handler (existing)
     el.addEventListener('click', () => onLetterClick(el, k));
     grid.appendChild(el);
   });
+
+  // After building, position all tick badges (they will be sized off the letters)
+  requestAnimationFrame(() => updateAllTickPositions());
 }
+
+
 
     buildGrid();
 
@@ -563,6 +680,15 @@ function onLetterClick(el, key) {
     el.grayscaleTimeout = null;
   }
 
+
+  // clear any previously scheduled tick for this same letter (we'll schedule a fresh one)
+  if (el._tick && el._tick.timeout) {
+  clearTimeout(el._tick.timeout);
+  el._tick.timeout = null;
+}
+
+
+
   // Schedule grayscale effect after 4 seconds and *store the id* so we can cancel it
   el.grayscaleTimeout = setTimeout(() => {
     // If timeout wasn't cleared, apply class and cleanup reference
@@ -572,6 +698,13 @@ function onLetterClick(el, key) {
 
   startAudioAndScheduleReset(key, el);
   startVideoOverlay(key);
+
+          // schedule the tick badge for this letter (4s after click)
+  scheduleTickForLetter(el);
+
+
+
+
 
   clearOverallTimer();
   state.overallTimer = setTimeout(() => {
@@ -753,7 +886,173 @@ function onLetterClick(el, key) {
       }
     }
 
+
+    // -------------------- Tick badge helpers --------------------
+
+function positionTickForLetter(letterEl) {
+  if (!letterEl || !letterEl._tick || !letterEl._tick.container) return;
+  const t = letterEl._tick;
+  const rect = letterEl.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
+  const cx = rect.left + w / 2 + window.scrollX;
+  const cy = rect.top + h / 2 + window.scrollY;
+
+  // circle radius (we assume letter is circular).
+  const R = Math.min(w, h) / 2;
+
+  // Angle system: degrees measured clockwise from top (0° = 12 o'clock).
+  const angleDeg = 133; // per your spec (between 4 and 5 o'clock)
+  const rad = angleDeg * Math.PI / 180;
+
+  // Place the center of the tick on the circumference (makes it half-on/half-off visually).
+  const d = R;
+
+  // Convert to page coords (screen Y positive down). Mapping derived for clockwise-from-top:
+  const x = cx + Math.sin(rad) * d;
+  const y = cy - Math.cos(rad) * d;
+
+  // pick badge size relative to letter size
+  const tickSize = Math.max(18, Math.round(w * 0.36)); // tweak multiplier if you want bigger/smaller
+
+  t.container.style.left = x + 'px';
+  t.container.style.top = y + 'px';
+  t.container.style.width = tickSize + 'px';
+  t.container.style.height = tickSize + 'px';
+}
+
+function updateAllTickPositions() {
+  // iterate letters
+  Array.from(grid.children).forEach(letter => {
+    if (letter._tick) positionTickForLetter(letter);
+  });
+}
+
+// schedule tick webm to play 4s after clicking the letter
+function scheduleTickForLetter(letterEl) {
+  if (!letterEl || !letterEl._tick) return;
+  const t = letterEl._tick;
+  if (t.shown) return; // already shown/persisted
+
+  // clear existing scheduled tick for this letter
+  if (t.timeout) {
+    clearTimeout(t.timeout);
+    t.timeout = null;
+  }
+
+  // schedule at same 4 seconds as your grayscale (explicitly set)
+  t.timeout = setTimeout(() => {
+    playTickForLetter(letterEl);
+    t.timeout = null;
+  }, 4000);
+}
+
+    function playTickForLetter(letterEl) {
+  if (!letterEl || !letterEl._tick) return;
+  const t = letterEl._tick;
+
+  // If placeholder already shown, show it and return
+  if (t.shown) {
+    t.container.style.display = 'block';
+    t.img.style.display = 'block';
+    return;
+  }
+
+  // Show container but keep video hidden until we have a frame
+  t.container.style.display = 'block';
+  t.img.style.display = 'none';
+  t.video.style.display = 'none';
+
+  // Safety flag & fallback
+  let shown = false;
+  function showVideo() {
+    if (shown) return;
+    shown = true;
+    try { t.video.style.display = 'block'; } catch(e){}
+    try { t.img.style.display = 'none'; } catch(e){}
+  }
+
+  // If browser supports requestVideoFrameCallback, wait for first painted frame
+  if (t.video.requestVideoFrameCallback) {
+    const p = t.video.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => {
+        try {
+          t.video.requestVideoFrameCallback(() => {
+            showVideo();
+          });
+        } catch (e) {
+          // fallback to loadeddata
+          t.video.addEventListener('loadeddata', showVideo, { once: true });
+        }
+      }).catch(() => {
+        // blocked — fallback to PNG
+        t.video.style.display = 'none';
+        t.img.style.display = 'block';
+        t.shown = true;
+      });
+    } else {
+      // synchronous play fallback
+      t.video.requestVideoFrameCallback(() => showVideo());
+    }
+  } else {
+    // Older browsers: wait for loadeddata then play (+ show)
+    const onLoaded = () => {
+      const p = t.video.play();
+      if (p && typeof p.then === 'function') {
+        p.then(showVideo).catch(() => {
+          // Playback blocked — show png
+          t.video.style.display = 'none';
+          t.img.style.display = 'block';
+          t.shown = true;
+        });
+      } else {
+        showVideo();
+      }
+    };
+    t.video.addEventListener('loadeddata', onLoaded, { once: true });
+    // start loading & attempt to play
+    try { t.video.load(); } catch(e){}
+    try {
+      const p = t.video.play();
+      if (p && typeof p.then === 'function') p.catch(()=>{});
+    } catch(e){}
+  }
+
+  // Fallback timeout: if nothing happens within ~1.2s, show PNG
+  const fb = setTimeout(() => {
+    if (!shown) {
+      try { t.video.pause(); t.video.style.display = 'none'; } catch(e){}
+      try { t.img.style.display = 'block'; } catch(e){}
+      t.shown = true;
+    }
+  }, 1200);
+
+  t.video.addEventListener('play', () => clearTimeout(fb), { once: true });
+}
+
+
+function clearAllTicks() {
+  Array.from(grid.children).forEach(letter => {
+    const t = letter._tick;
+    if (!t) return;
+    if (t.timeout) { clearTimeout(t.timeout); t.timeout = null; }
+    // hide UI
+    try { t.container.style.display = 'none'; } catch(e){}
+    try { t.video.pause(); t.video.currentTime = 0; t.video.style.display = 'none'; } catch(e){}
+    try { t.img.style.display = 'none'; } catch(e){}
+    t.shown = false;
+  });
+}
+
+
+
     function resetProgress() {
+
+                  // hide/stop ticks with the rest of the UI reset
+      clearAllTicks();
+
+
       // stop any confetti if still running
       stopConfetti();
       state.playedLetters.clear();
@@ -958,6 +1257,12 @@ function celebrate() {
 
     // make sure confetti canvas resizes on orientation change
     window.addEventListener('orientationchange', resizeConfettiCanvas);
+
+    window.addEventListener('resize', updateAllTickPositions);
+    window.addEventListener('scroll', updateAllTickPositions, { passive: true });
+    window.addEventListener('orientationchange', updateAllTickPositions);
+
+
   </script>
 </body>
 </html>
