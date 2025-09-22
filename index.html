@@ -5,11 +5,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Raahim's Arabic</title>
   <style>
-    :root { --gap: 10px; --max-width: 900px; --grid-cols: 5; }
+    :root { --gap: 10px; --max-width: 900px; --grid-cols: 5; --logo-size: 180px; }
+
+
+
+    /* Background container */
+.bg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Behind all content */
+  overflow: hidden;
+}
+
+/* Background image */
+.bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover the entire viewport */
+  opacity: 0.3; /* 30% opacity */
+  transition: transform 0.5s ease; /* Smooth scaling */
+}
+
+      .sultania-logo {
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: var(--logo-size);
+  height: var(--logo-size);
+  background: transparent;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4000;
+  pointer-events: auto;
+  text-decoration: none;
+}
+
+/* Make sure the image fits the square and keeps its aspect ratio */
+.sultania-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 4px; /* optional */
+  background: transparent;
+  -webkit-user-drag: none;
+}
+
+.page-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: var(--max-width);
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.page-title {
+  font-size: 3.0rem;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  color: #431fa1;
+  margin: 0;
+  text-align: center;
+  flex-grow: 1;
+}
+
 
     body {
       font-family: 'Comic Sans MS', cursive, sans-serif;
-      background: #f5f5f5;
+      background: transparent;
       margin: 0;
       padding: 20px;
       display: flex;
@@ -17,21 +87,10 @@
       align-items: center;
       min-height: 100vh;
       box-sizing: border-box;
+      position: relative;
     }
 
-    h1 {
-      color: #2e8b57;
-      margin: 0 0 18px 0;
-      position: sticky;
-      top: 0;
-      background: #f5f5f5;
-      padding: 10px 20px;
-      border-radius: 0 0 15px 15px;
-      z-index: 1000;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+    
 
     .container {
       width: 100%;
@@ -41,20 +100,21 @@
       gap: 18px;
       align-items: start;
       box-sizing: border-box;
+      margin-top: 40px;
     }
 
     /* wrapper that moves with scroll (holds progress + mouth) */
     .mouth-wrapper {
       position: sticky;
-      top: 80px; /* below header */
+      top: 70px; 
       z-index: 2000;
       width: 100%;
       max-width: var(--max-width);
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      pointer-events: none; /* let clicks through except on interactive children */
+     align-items: center;
+      pointer-events: none;
     }
 
     /* Floating mouth circle with circular progress */
@@ -182,6 +242,8 @@
       stroke-linecap: round;
       transition: stroke-dashoffset 0.5s ease-in-out;
     }
+
+
     @media (prefers-reduced-motion: reduce) {
       .overlay-ring {
         transition: none !important;
@@ -250,16 +312,134 @@
     .letter.shrink { transform: scale(0.88); opacity: 0.85; }
     .letter.inactive { filter: grayscale(100%); opacity: 0.6; pointer-events: none; }
 
-    
 
-    @media (max-width: 520px) {
-      :root { --grid-cols: 4; }
-      .mouth-wrapper { top: 70px; }
-      .mouth-container { width: 140px; height: 140px; }
-      .mouth { width: 110px; height: 110px; }
-    }
 
-    /* Confetti canvas */
+         /* ----------- Tablet view adjustments ------------ */
+
+@media (max-width: 900px) {
+  .grid {
+    padding: 0 15px;
+  }
+  
+  
+  .page-header {
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 15px;
+  }
+  
+ 
+  .sultania-logo {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 100px;
+    height: 100px;
+  }
+  
+ 
+  .page-title {
+    font-size: 2.2rem;
+    font-weight: 600;
+    flex-grow: 1;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    padding-top: 10px;
+  }
+}
+
+
+
+
+        /* ----------- Mobile view adjustments ------------ */
+@media (max-width: 520px) {
+  :root { 
+    --grid-cols: 3; 
+    --logo-size: 80px;
+  }
+
+  body {
+    padding: 15px; 
+  }
+  
+  
+  .page-header {
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 10px;
+  }
+  
+  
+  .sultania-logo {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    width: var(--logo-size);
+    height: var(--logo-size);
+  }
+  
+  
+  .page-title {
+    font-weight: 600;
+    flex-grow: 1;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    font-size: 1.6rem;
+    padding-top: 5px;
+  }
+
+  .grid {
+    padding: 0 10px; 
+    gap: 12px; 
+  }
+
+  .letter {
+    border-width: 3px;
+  }
+
+  .letter img {
+    width: 55%; 
+    height: 55%;
+  }
+  
+  .mouth-wrapper { 
+    top: 60px; /* Adjusted for mobile */
+  }
+  
+  /* Adjust container margin for mobile */
+  .container {
+    margin-top: 30px;
+  }
+}
+
+
+
+        /* ------ Extra small mobile devices ---------- */
+@media (max-width: 380px) {
+  .sultania-logo {
+    width: 70px;
+    height: 70px;
+    left: 10px;
+    top: 10px;
+  }
+  
+  .page-title {
+    font-size: 1.4rem;
+    padding-top: 0;
+  }
+  
+  :root {
+    --logo-size: 70px;
+  }
+}
+
+ 
+
+              /* -----------Confetti canvas----------- */
     canvas#confettiCanvas {
       position: fixed;
       inset: 0;
@@ -268,6 +448,8 @@
       pointer-events: none;
       z-index: 3000;
     }
+
+
 
     /* -------------------- Tick badge layer -------------------- */
 #tickLayer {
@@ -309,7 +491,18 @@
   </style>
 </head>
 <body>
-  <h1>Raahim's Arabic</h1>
+  
+    <div class="bg-container" id="bgContainer">
+      <img src="BG.png" alt="Background" class="bg-image" id="bgImage">
+    </div>
+
+  <div class="page-header">
+             
+    <a href="https://www.youtube.com/user/SultaniaEducation" class="sultania-logo" aria-label="Sultania logo">
+      <img src="sultaniaLogo.svg" alt="Sultania logo">
+    </a>
+    <h1 class="page-title">Arabic Alphabet</h1> 
+  </div>
 
   <div class="container">
     <!-- Mouth wrapper (sticky) contains progress bar + mouth so they move together -->
@@ -1262,6 +1455,48 @@ function celebrate() {
     window.addEventListener('scroll', updateAllTickPositions, { passive: true });
     window.addEventListener('orientationchange', updateAllTickPositions);
 
+
+    /*********************** Background Image Controls ***********************/
+const bgContainer = document.getElementById('bgContainer');
+const bgImage = document.getElementById('bgImage');
+
+// Initial background settings
+let bgSettings = {
+  scale: 1,
+  positionX: 0,
+  positionY: 0,
+  opacity: 0.3
+};
+
+// Function to update background properties
+function updateBackground() {
+  bgImage.style.transform = `translate(${bgSettings.positionX}px, ${bgSettings.positionY}px) scale(${bgSettings.scale})`;
+  bgImage.style.opacity = bgSettings.opacity;
+}
+
+// Function to adjust background (call this after visual inspection)
+function adjustBackground(settings = {}) {
+  if (settings.scale !== undefined) bgSettings.scale = settings.scale;
+  if (settings.positionX !== undefined) bgSettings.positionX = settings.positionX;
+  if (settings.positionY !== undefined) bgSettings.positionY = settings.positionY;
+  if (settings.opacity !== undefined) bgSettings.opacity = settings.opacity;
+  
+  updateBackground();
+}
+
+// Example usage (call these after visual inspection):
+// adjustBackground({ scale: 1.2 }); // Zoom in 20%
+// adjustBackground({ positionX: 50 }); // Move right 50px
+// adjustBackground({ positionY: -30 }); // Move up 30px
+// adjustBackground({ opacity: 0.4 }); // Change opacity to 40%
+
+// Make the adjustment function available globally
+window.adjustBackground = adjustBackground;
+
+// Initialize background
+updateBackground();
+
+    
 
   </script>
 </body>
