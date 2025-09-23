@@ -77,8 +77,169 @@
 }
 
 
+    /* ----------- Settings Menu ------------ */
+.settings-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 5000;
+}
+
+.settings-button {
+  background: transparent;
+  color: #431fa1;
+  border: none;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.settings-button:hover {
+  transform: rotate(45deg);
+}
+
+.settings-menu {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  width: 300px;
+  display: none;
+  z-index: 5001;
+  font-size: 14px;
+}
+
+.settings-menu h3 {
+  margin: 0 0 15px 0;
+  color: #431fa1;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  font-size: 24px;
+}
+
+.settings-menu h4 {
+  margin: 10px 0;
+  color: #555;
+  font-size: 20px;
+  text-align: center;
+}
+
+.setting-item {
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  direction: ltr;
+}
+
+.setting-item label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: space-between; 
+  width: 100%;
+  direction: rtl; 
+}
+
+.setting-item input[type="checkbox"] {
+  margin-left: 10px; 
+  margin-right: 0;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+
+
+.letter-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.letter-toggle {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.letter-toggle.active {
+  border-color: #431fa1;
+  background: #f0e8ff;
+}
+
+.letter-toggle.inactive {
+  opacity: 0.4;
+  filter: grayscale(100%);
+}
+
+/* Show menu when active */
+.settings-container:hover .settings-menu,
+.settings-menu.active {
+  display: block;
+}
+
+/* Mobile adjustments */
+@media (max-width: 900px) {
+  .settings-container {
+    top: 15px;
+    right: 15px;
+  }
+  
+  .settings-button {
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+    background: transparent;
+  }
+  
+  .settings-menu {
+    width: 280px;
+    right: -10px;
+  }
+}
+
+@media (max-width: 520px) {
+  .settings-container {
+    top: 10px;
+    right: 10px;
+  }
+  
+  .settings-button {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    background: transparent;
+  }
+  
+  .settings-menu {
+    width: 260px;
+    right: -15px;
+  }
+  
+  .letter-toggle-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+
     body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-family: "Playfair Display", Georgia, "Times New Roman", serif;
       background: transparent;
       margin: 0;
       padding: 20px;
@@ -504,6 +665,51 @@
     <h1 class="page-title">Arabic Alphabet</h1> 
   </div>
 
+
+
+
+    <!--------------- Settings Button -------------------->
+
+
+<div class="settings-container">
+  <button class="settings-button" id="settingsButton" aria-label="الإعدادات">
+    ⚙️
+  </button>
+  <div class="settings-menu" id="settingsMenu">
+    <h3>Settings</h3>
+    
+    <div class="setting-group">
+      <h4>Letters</h4>
+      <div class="letter-toggle-grid" id="letterToggleGrid"></div>
+    </div>
+    
+    <div class="setting-item">
+      <label>
+        <input type="checkbox" id="celebrationToggle" checked>
+        Celebration
+      </label>
+    </div>
+    
+    <div class="setting-item">
+      <label>
+        <input type="checkbox" id="tickToggle" checked>
+        Show tickmarks
+      </label>
+    </div>
+    
+    <div class="setting-item">
+      <label>
+        <input type="checkbox" id="grayscaleToggle" checked>
+        Grayscale completed letters
+      </label>
+    </div>
+  </div>
+</div>
+
+
+
+
+
   <div class="container">
     <!-- Mouth wrapper (sticky) contains progress bar + mouth so they move together -->
     <div class="mouth-wrapper" id="mouthWrapper">
@@ -685,6 +891,12 @@
       confettiTimeoutId: null,
       confettiFadeOpacity: 1,
       confettiFadeStartTime: null,
+      settings: {
+        celebrationEnabled: true,
+        tickEnabled: true,
+        grayscaleEnabled: true,
+        disabledLetters: new Set()
+      }
     };
 
     /*********************** Build grid ***********************/
@@ -775,8 +987,11 @@ if (canPlayWebm) {
     grid.appendChild(el);
   });
 
-  // After building, position all tick badges (they will be sized off the letters)
+  // After building, position all tick badges
   requestAnimationFrame(() => updateAllTickPositions());
+  
+  // ADD THIS LINE to apply initial letter states based on settings
+  updateLetterStates();
 }
 
 
@@ -857,7 +1072,14 @@ if (canPlayWebm) {
     window.addEventListener('beforeunload', () => { cancelPlayback(true); stopConfettiImmediately(); });
 
     // ------------------------- Click handler (fixed) -------------------------
-function onLetterClick(el, key) {
+
+
+      function onLetterClick(el, key) {
+  // Check if this letter is disabled in settings
+  if (state.settings.disabledLetters.has(key)) {
+    return; // Don't proceed if letter is disabled
+  }
+  
   cancelPlayback(true);
 
   state.currentEl = el;
@@ -873,31 +1095,28 @@ function onLetterClick(el, key) {
     el.grayscaleTimeout = null;
   }
 
-
-  // clear any previously scheduled tick for this same letter (we'll schedule a fresh one)
+  // clear any previously scheduled tick for this same letter
   if (el._tick && el._tick.timeout) {
-  clearTimeout(el._tick.timeout);
-  el._tick.timeout = null;
-}
+    clearTimeout(el._tick.timeout);
+    el._tick.timeout = null;
+  }
 
-
-
-  // Schedule grayscale effect after 4 seconds and *store the id* so we can cancel it
-  el.grayscaleTimeout = setTimeout(() => {
-    // If timeout wasn't cleared, apply class and cleanup reference
-    el.classList.add('previous');
-    el.grayscaleTimeout = null;
-  }, 4000);
+  // Schedule grayscale effect after 4 seconds if enabled
+  if (state.settings.grayscaleEnabled) {
+    el.grayscaleTimeout = setTimeout(() => {
+      // If timeout wasn't cleared, apply class and cleanup reference
+      el.classList.add('previous');
+      el.grayscaleTimeout = null;
+    }, 4000);
+  }
 
   startAudioAndScheduleReset(key, el);
   startVideoOverlay(key);
 
-          // schedule the tick badge for this letter (4s after click)
-  scheduleTickForLetter(el);
-
-
-
-
+  // schedule the tick badge for this letter if enabled
+  if (state.settings.tickEnabled) {
+    scheduleTickForLetter(el);
+  }
 
   clearOverallTimer();
   state.overallTimer = setTimeout(() => {
@@ -909,6 +1128,166 @@ function onLetterClick(el, key) {
     state.playedLetters.add(key);
     updateProgress();
   }
+}
+
+
+
+/*********************** Settings Functions ***********************/
+function initSettingsMenu() {
+  const settingsButton = document.getElementById('settingsButton');
+  const settingsMenu = document.getElementById('settingsMenu');
+  
+  // Toggle menu on button click
+  settingsButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    settingsMenu.classList.toggle('active');
+  });
+  
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!settingsMenu.contains(e.target) && e.target !== settingsButton) {
+      settingsMenu.classList.remove('active');
+    }
+  });
+  
+  // Initialize letter toggles
+  initLetterToggles();
+  
+  // Add event listeners for checkboxes
+  document.getElementById('celebrationToggle').addEventListener('change', (e) => {
+    state.settings.celebrationEnabled = e.target.checked;
+    saveSettings();
+  });
+  
+  document.getElementById('tickToggle').addEventListener('change', (e) => {
+    state.settings.tickEnabled = e.target.checked;
+    saveSettings();
+  });
+  
+  document.getElementById('grayscaleToggle').addEventListener('change', (e) => {
+    state.settings.grayscaleEnabled = e.target.checked;
+    saveSettings();
+    // Apply changes immediately
+    updateLetterStates();
+  });
+  
+  // Load saved settings
+  loadSettings();
+}
+
+function initLetterToggles() {
+  const toggleGrid = document.getElementById('letterToggleGrid');
+  toggleGrid.innerHTML = '';
+  
+  LETTER_KEYS.forEach((key, index) => {
+    const toggle = document.createElement('button');
+    toggle.className = 'letter-toggle active';
+    toggle.setAttribute('data-key', key);
+    toggle.setAttribute('type', 'button');
+    toggle.setAttribute('aria-label', `تفعيل/تعطيل ${key}`);
+    
+    // Use the first character of the key as a visual indicator
+    toggle.textContent = key.charAt(0).toUpperCase();
+    
+    toggle.addEventListener('click', () => {
+      toggle.classList.toggle('inactive');
+      if (state.settings.disabledLetters.has(key)) {
+        state.settings.disabledLetters.delete(key);
+      } else {
+        state.settings.disabledLetters.add(key);
+      }
+      saveSettings();
+      updateLetterStates();
+    });
+    
+    toggleGrid.appendChild(toggle);
+  });
+}
+
+function updateLetterStates() {
+  // Update grid letters based on settings
+  Array.from(grid.children).forEach(letter => {
+    const key = letter.getAttribute('data-key');
+    
+    if (state.settings.disabledLetters.has(key)) {
+      letter.classList.add('inactive');
+    } else {
+      letter.classList.remove('inactive');
+    }
+  });
+  
+  // Update toggle buttons
+  document.querySelectorAll('.letter-toggle').forEach(toggle => {
+    const key = toggle.getAttribute('data-key');
+    
+    if (state.settings.disabledLetters.has(key)) {
+      toggle.classList.add('inactive');
+    } else {
+      toggle.classList.remove('inactive');
+    }
+  });
+}
+
+function saveSettings() {
+  const settingsToSave = {
+    celebrationEnabled: state.settings.celebrationEnabled,
+    tickEnabled: state.settings.tickEnabled,
+    grayscaleEnabled: state.settings.grayscaleEnabled,
+    disabledLetters: Array.from(state.settings.disabledLetters)
+  };
+  
+  localStorage.setItem('arabicAlphabetSettings', JSON.stringify(settingsToSave));
+}
+
+function loadSettings() {
+  const savedSettings = localStorage.getItem('arabicAlphabetSettings');
+  
+  if (savedSettings) {
+    try {
+      const settings = JSON.parse(savedSettings);
+      
+      state.settings.celebrationEnabled = settings.celebrationEnabled !== false;
+      state.settings.tickEnabled = settings.tickEnabled !== false;
+      state.settings.grayscaleEnabled = settings.grayscaleEnabled !== false;
+      
+      if (settings.disabledLetters && Array.isArray(settings.disabledLetters)) {
+        state.settings.disabledLetters = new Set(settings.disabledLetters);
+      }
+      
+      // Update UI to reflect loaded settings
+      document.getElementById('celebrationToggle').checked = state.settings.celebrationEnabled;
+      document.getElementById('tickToggle').checked = state.settings.tickEnabled;
+      document.getElementById('grayscaleToggle').checked = state.settings.grayscaleEnabled;
+      
+      updateLetterStates();
+    } catch (e) {
+      console.error('Error loading settings:', e);
+    }
+  }
+}
+
+
+
+// Modify the celebrate function to respect settings
+
+function celebrate() {
+  if (!state.settings.celebrationEnabled) return;
+  
+  // Cancel pending grayscale timeouts and remove previous class from all letters
+  document.querySelectorAll('.letter').forEach(letter => {
+    if (letter.grayscaleTimeout) {
+      clearTimeout(letter.grayscaleTimeout);
+      letter.grayscaleTimeout = null;
+    }
+    letter.classList.remove('previous');
+  });
+
+  try {
+    celebrationSound.currentTime = 0;
+    celebrationSound.play().catch(() => {});
+  } catch (e) {}
+
+  startConfetti();
 }
 
 
@@ -1439,6 +1818,10 @@ function celebrate() {
     /*********************** Initialization ***********************/
     // initialize progress to 0
     updateProgress();
+  
+    initSettingsMenu();
+
+   
 
     // ensure overlay sizing after load
     window.addEventListener('load', () => {
@@ -1484,11 +1867,7 @@ function adjustBackground(settings = {}) {
   updateBackground();
 }
 
-// Example usage (call these after visual inspection):
-// adjustBackground({ scale: 1.2 }); // Zoom in 20%
-// adjustBackground({ positionX: 50 }); // Move right 50px
-// adjustBackground({ positionY: -30 }); // Move up 30px
-// adjustBackground({ opacity: 0.4 }); // Change opacity to 40%
+
 
 // Make the adjustment function available globally
 window.adjustBackground = adjustBackground;
@@ -1496,7 +1875,7 @@ window.adjustBackground = adjustBackground;
 // Initialize background
 updateBackground();
 
-    
+
 
   </script>
 </body>
