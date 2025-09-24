@@ -77,6 +77,60 @@
 }
 
 
+                        /* ----------- Legend Styles ------------ */
+.legend-container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto 15px auto;
+  padding: 0 10px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 100;
+}
+
+.legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: none;
+  gap: 8px;
+  min-height: auto;
+  height: auto;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  flex-direction: row-reverse;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.legend-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+
+
+
+
+
     /* ----------- Settings Menu ------------ */
 .settings-container {
   position: absolute;
@@ -214,6 +268,27 @@
     width: 280px;
     right: -10px;
   }
+
+  .legend-container {
+    margin-bottom: 12px; 
+  }
+
+  .legend {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  
+  .legend-text {
+    font-size: 10px;
+  }
+  
+  .legend-color {
+    width: 14px;
+    height: 14px;
+  }
+
+  
+
 }
 
 @media (max-width: 520px) {
@@ -236,6 +311,40 @@
   
   .letter-toggle-grid {
     grid-template-columns: repeat(5, 1fr);
+  }
+
+  .legend-container {
+    margin-bottom: 10px;
+    padding: 0 8px;
+  }
+
+  .legend {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 6px 0;
+    justify-content: center;
+    flex-direction: row-reverse;
+  }
+  
+  .legend-item {
+    flex: 0 0 calc(50% - 5px);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: flex-start;
+    min-width: 0px;
+  }
+  
+  .legend-text {
+    font-size: 9px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
   }
 }
 
@@ -276,8 +385,10 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-     align-items: center;
+      align-items: center;
       pointer-events: none;
+      background: transparent;
+      padding: 0; 
     }
 
     /* Floating mouth circle with circular progress */
@@ -594,6 +705,20 @@
     font-size: 1.4rem;
     padding-top: 0;
   }
+
+.legend {
+    flex-direction: column-reverse;
+    
+  }
+
+  .legend-item {
+    flex: 0 0 auto; 
+    width: 100%;
+    justify-content: flex-start;
+
+  }
+  
+
   
   :root {
     --logo-size: 70px;
@@ -715,6 +840,7 @@
   <div class="container">
     <!-- Mouth wrapper (sticky) contains progress bar + mouth so they move together -->
     <div class="mouth-wrapper" id="mouthWrapper">
+
       <!-- Circular progress container -->
       <div class="mouth-container" id="mouthContainer">
         <!-- Circular progress SVG -->
@@ -772,6 +898,34 @@
         </div>
       </div>
     </div>
+
+
+                           <!-- Legend container -->
+
+<div class="legend-container">
+  <div class="legend" id="legend">
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #4633CC;"></div>
+      <span class="legend-text">Lisp letters</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #DB0000;"></div>
+      <span class="legend-text">Sibilant letters</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #FFFF12;"></div>
+      <span class="legend-text">Fat letters</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #000000;"></div>
+      <span class="legend-text">Thin letters</span>
+      
+    </div>
+  </div>
+</div>
+
+
+
 
     <!-- Letters grid -->
     <div class="grid" id="grid" role="list"></div>
@@ -901,6 +1055,28 @@
       }
     };
 
+
+    /*********************** Legend ***********************/
+
+function updateLegendLayout() {
+  const legend = document.getElementById('legend');
+  const containerWidth = document.querySelector('.container').offsetWidth;
+  
+  // Adjust legend layout for very small screens
+  if (containerWidth < 400) {
+    document.querySelectorAll('.legend-item').forEach(item => {
+      item.style.flex = '0 0 45%';
+    });
+  }
+}
+
+// Call on load and resize
+window.addEventListener('load', updateLegendLayout);
+window.addEventListener('resize', updateLegendLayout);
+
+
+
+
     /*********************** Build grid ***********************/
     
     function buildGrid() {
@@ -999,6 +1175,15 @@ if (canPlayWebm) {
 
 
     buildGrid();
+
+
+
+
+
+
+
+
+
 
     /*********************** Size sync ***********************/
     function syncMouthSize() {
