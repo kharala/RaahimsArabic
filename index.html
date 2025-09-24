@@ -1298,12 +1298,12 @@ function loadSettings() {
 
 
 
-// Modify the celebrate function to respect settings
+        /*********************** Celebration ***********************/
 
 function celebrate() {
   if (!state.settings.celebrationEnabled) return;
   
-  // Cancel pending grayscale timeouts and remove previous class from all letters
+  
   document.querySelectorAll('.letter').forEach(letter => {
     if (letter.grayscaleTimeout) {
       clearTimeout(letter.grayscaleTimeout);
@@ -1756,9 +1756,11 @@ function clearAllTicks() {
     state.confettiAnimationId = requestAnimationFrame(drawConfettiFrame);
   }
 }
+    
     function startConfetti() {
-  // accessibility: respect prefers-reduced-motion
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // accessibility: respect prefers-reduced-motion AND settings
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || 
+      !state.settings.celebrationEnabled) return;
   stopConfettiImmediately();
   resizeConfettiCanvas();
   
@@ -1771,6 +1773,8 @@ function clearAllTicks() {
   // stop after CONFETTI_DURATION_MS automatically
   state.confettiTimeoutId = setTimeout(() => stopConfetti(), CONFETTI_DURATION_MS);
 }
+
+
     function stopConfetti() {
   if (state.confettiAnimationId) {
     cancelAnimationFrame(state.confettiAnimationId);
@@ -1824,24 +1828,6 @@ function clearAllTicks() {
   confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
 }
 
-    // ------------------------- Celebration (fixed) -------------------------
-function celebrate() {
-  // Cancel pending grayscale timeouts and remove previous class from all letters
-  document.querySelectorAll('.letter').forEach(letter => {
-    if (letter.grayscaleTimeout) {
-      clearTimeout(letter.grayscaleTimeout);
-      letter.grayscaleTimeout = null;
-    }
-    letter.classList.remove('previous');
-  });
-
-  try {
-    celebrationSound.currentTime = 0;
-    celebrationSound.play().catch(() => {});
-  } catch (e) {}
-
-  startConfetti();
-}
 
 
 
