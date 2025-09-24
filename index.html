@@ -1133,22 +1133,32 @@ if (canPlayWebm) {
 
 
 /*********************** Settings Functions ***********************/
-function initSettingsMenu() {
+    function initSettingsMenu() {
   const settingsButton = document.getElementById('settingsButton');
   const settingsMenu = document.getElementById('settingsMenu');
   
-  // Toggle menu on button click
-  settingsButton.addEventListener('click', (e) => {
-    e.stopPropagation();
+  // Toggle menu on button click OR touch
+  function toggleMenu(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault(); // Prevent double-tap zoom on mobile
+    }
     settingsMenu.classList.toggle('active');
-  });
+  }
   
-  // Close menu when clicking outside
-  document.addEventListener('click', (e) => {
+  // Add both click and touch event listeners
+  settingsButton.addEventListener('click', toggleMenu);
+  settingsButton.addEventListener('touchend', toggleMenu);
+  
+  // Close menu when clicking/touching outside
+  function closeMenu(e) {
     if (!settingsMenu.contains(e.target) && e.target !== settingsButton) {
       settingsMenu.classList.remove('active');
     }
-  });
+  }
+  
+  document.addEventListener('click', closeMenu);
+  document.addEventListener('touchend', closeMenu);
   
   // Initialize letter toggles
   initLetterToggles();
@@ -1186,9 +1196,27 @@ function initLetterToggles() {
     toggle.setAttribute('type', 'button');
     toggle.setAttribute('aria-label', `تفعيل/تعطيل ${key}`);
     
-    // Use the first character of the key as a visual indicator
-    toggle.textContent = key.charAt(0).toUpperCase();
-    
+        // Use the first character of the key as a visual indicator
+
+    //toggle.textContent = key.charAt(0).toUpperCase();
+    //toggle.textContent = key; 
+
+
+    const arabicLetters = {
+  "alif": "ا", "baa": "ب", "taa": "ت", "thaa": "ث", "jeem": "ج",
+  "haa": "ح", "khaa": "خ", "daal": "د", "zaal": "ذ", "raa": "ر",
+  "zaa": "ز", "seen": "س", "sheen": "ش", "suad": "ص", "duad": "ض",
+  "tua": "ط", "zua": "ظ", "ayn": "ع", "ghayn": "غ", "faa": "ف",
+  "qaaf": "ق", "kaaf": "ك", "laam": "ل", "meem": "م", "noon": "ن",
+  "waw": "و", "hhaa": "ه", "hamza": "ء", "yaa": "ي", "yaaa": "ى"
+   };
+
+toggle.textContent = arabicLetters[key] || key.charAt(0).toUpperCase();
+
+
+
+
+
     toggle.addEventListener('click', () => {
       toggle.classList.toggle('inactive');
       if (state.settings.disabledLetters.has(key)) {
