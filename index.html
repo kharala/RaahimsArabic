@@ -3,38 +3,59 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Raahim's Arabic</title>
+  <title>Arabic Alphabet</title>
   <style>
     :root { --gap: 10px; --max-width: 900px; --grid-cols: 5; --logo-size: 180px; }
 
 
-
-    /* Background container */
 .bg-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Behind all content */
+  z-index: -1; 
   overflow: hidden;
 }
 
-/* Background image */
+
 .bg-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Cover the entire viewport */
-  opacity: 0.3; /* 30% opacity */
-  transition: transform 0.5s ease; /* Smooth scaling */
+  object-fit: cover; 
+  opacity: 0.3; 
+  transition: transform 0.5s ease; 
 }
 
-      .sultania-logo {
-  position: absolute;
-  left: 0;
-  top: 10px;
-  width: var(--logo-size);
-  height: var(--logo-size);
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: var(--max-width);
+  margin-bottom: 20px;
+  position: relative;
+  padding-top: 5px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  height: auto;
+}
+
+
+/* Dervesh Logo Styles - positioned inline with text logo */
+.dervesh-logo {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  width: 100px; 
+  height: 100px;
   background: transparent;
   box-sizing: border-box;
   display: flex;
@@ -43,41 +64,90 @@
   z-index: 4000;
   pointer-events: auto;
   text-decoration: none;
+  animation: rotateLogoVertical 2s linear infinite;
+  transform-style: preserve-3d;
+  align-self: center;
 }
 
-/* Make sure the image fits the square and keeps its aspect ratio */
-.sultania-logo img {
+.dervesh-logo img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
-  border-radius: 4px; /* optional */
+  border-radius: 4px;
   background: transparent;
   -webkit-user-drag: none;
+  transform-style: preserve-3d;
 }
 
-.page-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: var(--max-width);
-  margin-bottom: 20px;
-  position: relative;
+@keyframes rotateLogoVertical {
+  0% {
+    transform: translateY(-50%) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-50%) rotateY(180deg);
+  }
+  100% {
+    transform: translateY(-50%) rotateY(360deg);
+  }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .dervesh-logo {
+    animation: none;
+  }
+}
+
+.sultania-education-logo {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-size: 2.8rem;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100px;
+  order: 0;
+  direction: ltr;
+}
+
+.s-letter { color: #000000; }
+.s-u-letter { color: #f7a03b; }
+.s-l-letter { color: #3f3b3c; }
+.s-t-letter { color: #ee3940; }
+.s-a-letter { color: #20b7f0; }
+.s-n-letter { color: #ee3940; }
+.s-i-letter { color: #3f3b3c; }
+.s-second-a-letter { color: #484b9f; }
+
+.e-letter { color: #000000; }
+.e-d-letter { color: #484b9f; }
+.e-u-letter { color: #f7a03b; }
+.e-c-letter { color: #ee3940; }
+.e-a-letter { color: #20b7f0; }
+.e-t-letter { color: #3f3b3c; }
+.e-i-letter { color: #f7a03b; }
+.e-o-letter { color: #484b9f; }
+.e-second-n-letter { color: #ee3940; }
+
+      
 
 .page-title {
   font-size: 3.0rem;
-  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-family: "Roboto", Georgia, "Times New Roman", serif;
   font-weight: 600;
   color: #431fa1;
   margin: 0;
   text-align: center;
   flex-grow: 1;
+  direction: ltr;
 }
 
 
-                        /* ----------- Legend Styles ------------ */
 .legend-container {
   width: 100%;
   max-width: var(--max-width);
@@ -126,11 +196,7 @@
 }
 
 
-
-
-
-
-    /* ----------- Settings Menu ------------ */
+        /* ----------- Settings Menu ------------ */
 .settings-container {
   position: absolute;
   top: 20px;
@@ -249,148 +315,6 @@
   display: block;
 }
 
-                 /* ----------- Tablet view adjustments ------------ */
-@media (max-width: 900px) {
-
-  .grid {
-    padding: 0 15px;
-  }
-  
-  
-  .page-header {
-    flex-direction: column;
-    align-items: center;
-    padding: 0;
-    margin-bottom: 15px;
-  }
-  
- 
-  .sultania-logo {
-    position: absolute;
-    left: 20px;
-    top: 20px;
-    width: 100px;
-    height: 100px;
-  }
-  
- 
-  .page-title {
-    font-size: 2.2rem;
-    font-weight: 600;
-    flex-grow: 1;
-    text-align: center;
-    margin: 0 auto;
-    width: 100%;
-    padding-top: 10px;
-  }
-
-
-  .settings-container {
-    top: 15px;
-    right: 15px;
-  }
-  
-  .settings-button {
-    width: 45px;
-    height: 45px;
-    font-size: 22px;
-    background: transparent;
-  }
-  
-  .settings-menu {
-    width: 280px;
-    right: -10px;
-  }
-
-  .legend-container {
-    margin-bottom: 15px; 
-    padding: 0 20px;
-  }
-
-  .legend {
-    padding: 12px 16px;
-    gap: 12px;
-  }
-
-  .legend-item {
-      gap: 10px;
-  }
-  
-  .legend-text {
-    font-size: 14px;
-    font-weight: 600;
-  }
-  
-  .legend-color {
-    width: 22px;
-    height: 22px;
-    border-radius: 5px;
-  }
-}
-
-
-
-            /* ----------- Mobile view adjustments ------------ */
-
-@media (max-width: 520px) {
-  .settings-container {
-    top: 10px;
-    right: 10px;
-  }
-  
-  .settings-button {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-    background: transparent;
-  }
-  
-  .settings-menu {
-    width: 260px;
-    right: -15px;
-  }
-  
-  .letter-toggle-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  .legend-container {
-    margin-bottom: 10px;
-    padding: 0 0px 0 30px;
-  }
-
-  .legend {
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 6px 0;
-    justify-content: center;
-    flex-direction: row-reverse;
-  }
-  
-  .legend-item {
-    flex: 0 0 calc(50% - 5px);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: flex-start;
-    min-width: 0px;
-  }
-  
-  .legend-text {
-    font-size: 16px;
-    flex-shrink: 1;
-    min-width: 0;
-  }
-
-  .legend-color {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-    flex-shrink: 0;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-  }
-}
-
 
     body {
       font-family: "Playfair Display", Georgia, "Times New Roman", serif;
@@ -418,7 +342,6 @@
       margin-top: 40px;
     }
 
-    /* wrapper that moves with scroll (holds progress + mouth) */
     .mouth-wrapper {
       position: sticky;
       top: 70px; 
@@ -434,7 +357,6 @@
       padding: 0; 
     }
 
-    /* Floating mouth circle with circular progress */
     .mouth-container {
       position: relative;
       width: 180px;
@@ -452,7 +374,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      transform: rotate(-60deg); /* Start at top (clean) */
+      transform: rotate(-60deg); 
       shape-rendering: geometricPrecision;
     }
 
@@ -492,20 +414,20 @@
     }
 
 
-    /* Curved text that lives in the arc gap */
-.gap-text {
-  font-size: 8px;
-  font-weight: 700;
-  fill: #333;
-  pointer-events: none; /* don’t steal clicks */
-}
+    
+    .gap-text {
+      font-size: 8px;
+      font-weight: 700;
+      fill: #333;
+      pointer-events: none; 
+    }
 
 
     .mouth {
       transition: transform 0.18s ease;
       background: white;
       border-radius: 50%;
-      border: 6px solid #FFFF00; /* Thicker border */
+      border: 6px solid #FFFF00; 
       display: flex;
       align-items: center;
       justify-content: center;
@@ -514,10 +436,11 @@
       box-sizing: border-box;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
       position: relative;
-      width: 140px; /* default will be overridden by JS syncMouthSize */
+      width: 140px; 
       height: 140px;
       z-index: 2001;
     }
+
     .mouth.playing { transform: scale(1.03); }
 
     .mouth img, .mouth video {
@@ -530,11 +453,11 @@
       display: block;
       background: transparent;
     }
+
     .mouth video { z-index: 2; display: none; }
     .mouth img { z-index: 1; }
     .mouth.playing video { display: block; }
 
-    /* Ring animation overlay */
     .mouth-overlay {
       position: absolute;
       top: 50%;
@@ -599,8 +522,8 @@
       background-image:
       linear-gradient(#ffffff, #ffffff),
       linear-gradient(to right,
-      var(--left-border) 40%,       /* solid left */
-      var(--right-border) 60%       /* solid right */
+      var(--left-border) 40%,
+      var(--right-border) 60%
     );
 
       background-origin: padding-box, border-box;
@@ -621,7 +544,6 @@
     .letter.previous {
       filter: grayscale(100%);
       opacity: 0.6;
-      /* pointer-events stays enabled so it remains clickable */
 }
 
 
@@ -631,12 +553,106 @@
 
 
 
-         
+              /* ----------- Tablet view adjustments ------------ */
+@media (max-width: 900px) {
+
+  .grid {
+    padding: 0 15px;
+  }
+  
+  
+  .page-header {
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 15px;
+  }
+
+  .dervesh-logo {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 70px;
+    height: 70px;
+    transform: none;
+    margin-right: 5px; 
+    animation: rotateLogoVertical 2s linear infinite;
+  }
+  
+  .sultania-education-logo {
+    font-size: 2.2rem;
+    margin: 3px 0 8px 0;
+    min-height: 70px;
+  }
+
+  @keyframes rotateLogoVertical {
+  0% {
+    transform: translateY(-50%) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-50%) rotateY(180deg);
+  }
+  100% {
+    transform: translateY(-50%) rotateY(360deg);
+  }
+}
+ 
+  .page-title {
+    font-size: 2.2rem;
+    font-weight: 600;
+    flex-grow: 1;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    padding-top: 10px;
+  }
 
 
+  .settings-container {
+    top: 15px;
+    right: 15px;
+  }
+  
+  .settings-button {
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+    background: transparent;
+  }
+  
+  .settings-menu {
+    width: 280px;
+    right: -10px;
+  }
 
+  .legend-container {
+    margin-bottom: 15px; 
+    padding: 0 20px;
+  }
 
-        /* ----------- Mobile view adjustments ------------ */
+  .legend {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .legend-item {
+      gap: 10px;
+  }
+  
+  .legend-text {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  .legend-color {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+  }
+}
+
+              /* ----------- Mobile view adjustments ------------ */
+
 @media (max-width: 520px) {
   :root { 
     --grid-cols: 3; 
@@ -646,6 +662,89 @@
   body {
     padding: 15px; 
   }
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+
+  .dervesh-logo {
+    width: 75px;
+    height: 75px;
+    margin-top: 17px;
+    align-self: center;
+  }
+
+
+  .sultania-education-logo {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    height: auto;
+    min-height: auto;
+    line-height: normal;
+  }
+
+
+  .settings-container {
+    top: 10px;
+    right: 10px;
+  }
+  
+  .settings-button {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    background: transparent;
+  }
+  
+  .settings-menu {
+    width: 260px;
+    right: -15px;
+  }
+  
+  .letter-toggle-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .legend-container {
+    margin-bottom: 10px;
+    padding: 0 0px 0 40px;
+  }
+
+  .legend {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 6px 0;
+    justify-content: center;
+    flex-direction: row-reverse;
+  }
+  
+  .legend-item {
+    flex: 0 0 calc(50% - 5px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
+    min-width: 0px;
+  }
+  
+  .legend-text {
+    font-size: 16px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
   
   
   .page-header {
@@ -654,17 +753,7 @@
     padding: 0;
     margin-bottom: 10px;
   }
-  
-  
-  .sultania-logo {
-    position: absolute;
-    left: 0px;
-    top: 15px;
-    width: 120px;
-    height: 120px;
-  }
-  
-  
+
   .page-title {
     font-weight: 600;
     flex-grow: 1;
@@ -712,24 +801,28 @@
   }
   
   .mouth-wrapper { 
-    top: 60px; /* Adjusted for mobile */
+    top: 60px; 
   }
-  
-  /* Adjust container margin for mobile */
+
   .container {
     margin-top: 30px;
   }
 }
 
-
-
         /* ------ Extra small mobile devices ---------- */
 @media (max-width: 380px) {
-  .sultania-logo {
-    width: 70px;
-    height: 70px;
-    left: 10px;
-    top: 10px;
+
+
+  .dervesh-logo {
+    width: 50px;
+    height: 50px;
+    margin-right: 5px;
+  }
+
+  .sultania-education-logo {
+    font-size: 1.6rem;
+    margin: 2px 0 5px 0;
+    min-height: 50px;
   }
   
   .page-title {
@@ -739,7 +832,6 @@
 
 .legend {
     flex-direction: column-reverse;
-    
   }
 
   .legend-item {
@@ -757,17 +849,14 @@
     width: 16px; /* Consistent size */
     height: 16px;
   }
-  
 
-  
   :root {
     --logo-size: 70px;
   }
 }
 
- 
-
               /* -----------Confetti canvas----------- */
+
     canvas#confettiCanvas {
       position: fixed;
       inset: 0;
@@ -777,8 +866,6 @@
       z-index: 3000;
     }
 
-
-
     /* -------------------- Tick badge layer -------------------- */
 #tickLayer {
   position: absolute;
@@ -787,22 +874,19 @@
   width: 100%;
   background: transparent;
   height: 100%;
-  pointer-events: none; /* clicks pass through */
-  z-index: 1500;        /* above letters/mouth overlay but below confetti (confetti was 3000) */
+  pointer-events: none; 
+  z-index: 1500; 
 }
 
-/* Single tick badge (absolute page coords inside tickLayer) */
 .tick-badge {
   position: absolute;
   background: transparent;
-  transform: translate(-50%, -50%); /* center by left/top */
+  transform: translate(-50%, -50%); 
   pointer-events: none;
-  display: none; /* toggled by JS */
+  display: none; 
   z-index: 2501;
   will-change: transform, opacity;
 }
-
-/* video & png use the badge size */
 .tick-badge video,
 .tick-badge img {
   display: block;
@@ -814,8 +898,6 @@
   -webkit-user-drag: none;
   background: transparent;
 }
-
-
   </style>
 </head>
 <body>
@@ -826,13 +908,36 @@
 
   <div class="page-header">
              
-    <a href="https://www.youtube.com/user/SultaniaEducation" class="sultania-logo" aria-label="Sultania logo">
-      <img src="sultaniaLogo.svg" alt="Sultania logo">
+    <a href="https://www.youtube.com/user/SultaniaEducation" class="dervesh-logo" aria-label="Dervesh logo">
+      <img src="dervesh.svg" alt="Dervesh logo">
     </a>
+
+
+                 <!-- New colorful text logo -->
+
+  <h1 class="sultania-education-logo">
+    <span class="s-letter">S</span>
+    <span class="s-u-letter">u</span>
+    <span class="s-l-letter">l</span>
+    <span class="s-t-letter">t</span>
+    <span class="s-a-letter">a</span>
+    <span class="s-n-letter">n</span>
+    <span class="s-i-letter">i</span>
+    <span class="s-second-a-letter">a</span>
+    <span style="color: #000000; margin: 0 5px;"> </span>
+    <span class="e-letter">E</span>
+    <span class="e-d-letter">d</span>
+    <span class="e-u-letter">u</span>
+    <span class="e-c-letter">c</span>
+    <span class="e-a-letter">a</span>
+    <span class="e-t-letter">t</span>
+    <span class="e-i-letter">i</span>
+    <span class="e-o-letter">o</span>
+    <span class="e-second-n-letter">n</span>
+  </h1>
+
     <h1 class="page-title">Arabic Alphabet</h1> 
   </div>
-
-
 
 
     <!--------------- Settings Button -------------------->
@@ -874,9 +979,6 @@
 </div>
 
 
-
-
-
   <div class="container">
     <!-- Mouth wrapper (sticky) contains progress bar + mouth so they move together -->
     <div class="mouth-wrapper" id="mouthWrapper">
@@ -886,26 +988,17 @@
         <!-- Circular progress SVG -->
         <div class="circular-progress" id="circularProgress">
           <svg class="progress-ring" viewBox="0 0 100 100">
-  <!-- We draw on a 100x100 viewBox; circles use r=47 so 6px stroke stays inside -->
+  
 
-  <!-- 1) Define the small 60° gap arc as a path.
-       NOTE: This path is defined for the *unrotated* ring (gap from ~1 o’clock to 3 o’clock).
-       Your .circular-progress has rotate(-60deg), so this ends up centered at the top (11–1 o’clock). -->
   <defs>
-    <!-- Center (50,50), radius 47.
-         Start at θ=300° (upper-right): (x≈73.5, y≈9.3)
-         End   at θ=  0° (right):       (x=97,   y=50) -->
     <path id="gapArcPath"
           d="M 73.5 9.3 A 47 47 0 0 1 97 50" />
   </defs>
 
-  <!-- 2) The background circle and the yellow progress arc -->
   <circle class="progress-ring-circle" cx="50" cy="50" r="47" />
   <circle class="progress-ring-value" id="progressRingValue" cx="50" cy="50" r="47" />
 
-  <!-- 3) Curved text that sits along the gap arc -->
   <text class="gap-text" direction="ltr">
-    <!-- center the text in the middle of the gap arc -->
     <textPath id="gapTextPath"
               href="#gapArcPath"
               startOffset="50%"
@@ -913,24 +1006,18 @@
               dominant-baseline="central">0 / 30</textPath>
   </text>
 </svg>
-
-
         </div>
         
-        <!-- Progress text in the center -->
         <div class="progress-text-container">
           <div class="progress-text" id="progressText">0 / 30</div>
         </div>
-        
-        <!-- Floating mouth circle -->
         <div class="circle mouth" id="mouth" aria-label="شكل الفم">
           <img id="mouthDefault" src="mouths/default.png" alt="Default mouth">
           <video id="mouthVideo" playsinline muted></video>
 
-          <!-- Ring animation overlay -->
           <div class="mouth-overlay" id="mouthOverlay" aria-hidden="true">
             <svg id="mouthOverlaySvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100">
-                <!-- initial centered values; updateOverlayForSize() will set exact values -->
+
               <circle id="overlayCircle" class="overlay-ring" cx="50" cy="50" r="44" stroke-width="6"></circle>
             </svg>
           </div>    
@@ -938,8 +1025,6 @@
         </div>
       </div>
     </div>
-
-
                            <!-- Legend container -->
 
 <div class="legend-container">
@@ -964,24 +1049,17 @@
   </div>
 </div>
 
-
-
-
-    <!-- Letters grid -->
     <div class="grid" id="grid" role="list"></div>
   </div>
 
-  <!-- Tick UI layer - badges live here (keeps them outside letter filters) -->
 <div id="tickLayer" aria-hidden="true"></div>
 
-
-  <!-- Confetti canvas -->
   <canvas id="confettiCanvas" aria-hidden="true"></canvas>
 
-  <!-- Celebration sound (external URL so you don't need to add files locally) -->
   <audio id="celebrationSound" src="sounds/yay.mp3" preload="auto"></audio>
 
   <script>
+
     /*********************** Configuration ***********************/
     const LETTER_KEYS = [
       "alif","baa","taa","thaa","jeem",
@@ -1025,16 +1103,13 @@
      ["#000000","#000000"],
 
 ];
-
-
-
     const MIN_RESET_MS = 300;
     const META_TIMEOUT_MS = 1500;
     const AUDIO_FALLBACK_MS = 4500;
     const OVERALL_SAFE_MS = 12000;
     const MOUTH_SCALE = 1.5;
-    const AUTO_RESET_AFTER_COMPLETE_MS = 7000; // auto-reset delay after 30/30
-    const CONFETTI_DURATION_MS = 7000; // how long confetti runs
+    const AUTO_RESET_AFTER_COMPLETE_MS = 7000; 
+    const CONFETTI_DURATION_MS = 7000; 
 
     /*********************** DOM refs ***********************/
     const grid = document.getElementById('grid');
@@ -1069,7 +1144,6 @@
     return el;
   })();
 
-
     /*********************** State ***********************/
     const state = {
       currentEl: null,
@@ -1095,7 +1169,6 @@
       }
     };
 
-
     /*********************** Legend ***********************/
 
 function updateLegendLayout() {
@@ -1114,9 +1187,6 @@ function updateLegendLayout() {
 window.addEventListener('load', updateLegendLayout);
 window.addEventListener('resize', updateLegendLayout);
 
-
-
-
     /*********************** Build grid ***********************/
     
     function buildGrid() {
@@ -1129,7 +1199,6 @@ window.addEventListener('resize', updateLegendLayout);
     el.setAttribute('role', 'listitem');
     el.innerHTML = `<img src="images/${k}.png" alt="${k}">`;
 
-    // Determine left/right colours (support legacy single-string fallback)
     const pair = COLORS[i % COLORS.length];
     let left, right;
     if (Array.isArray(pair)) {
@@ -1138,47 +1207,39 @@ window.addEventListener('resize', updateLegendLayout);
       left = right = pair || '#000';
     }
 
-    // apply border split via CSS custom properties
     el.style.border = '4.5px solid transparent';
     el.style.setProperty('--left-border', left);
     el.style.setProperty('--right-border', right);
 
-    // Create the tick-badge (kept outside the letter so letter filters don't affect it)
     const tickContainer = document.createElement('div');
     tickContainer.className = 'tick-badge';
     tickContainer.setAttribute('data-key', k);
-    tickContainer.style.display = 'none'; // shown later by JS
+    tickContainer.style.display = 'none'; 
 
-    // Create tick video element
     const tickVideo = document.createElement('video');
-        // Do NOT set .src immediately on older Safari fallback approach below.
-        // We'll set src on browsers that support WebM.
+       
     tickVideo.preload = 'auto';
     tickVideo.playsInline = true;
-    tickVideo.muted = false;               // required for autoplay in many browsers
-    tickVideo.style.display = 'none';     // hide until first frame ready
+    tickVideo.muted = false;              
+    tickVideo.style.display = 'none';  
     tickVideo.style.background = 'transparent';
     tickVideo.setAttribute('aria-hidden', 'true');
 
-                                        // Create tick image fallback
     const tickImg = document.createElement('img');
     tickImg.src = `mouths/tick.png`;
     tickImg.alt = 'tick';
     tickImg.style.display = 'none';
     tickImg.setAttribute('aria-hidden', 'true');
 
-      // Only attach webm src if browser claims to support it (basic capability test)
     const canPlayWebm = document.createElement('video').canPlayType('video/webm; codecs="vp9,opus"') ||
                     document.createElement('video').canPlayType('video/webm; codecs="vp9"');
 if (canPlayWebm) {
   tickVideo.src = `mouths/tick.webm`;
 } else {
-  // fallback immediately to png for browsers that can't play webm/vp9
+  
   tickImg.style.display = 'block';
 }
 
-
-    // When the webm finishes, hide the video and show the png placeholder
     tickVideo.onended = () => {
       try { tickVideo.style.display = 'none'; } catch(e) {}
       try { tickImg.style.display = 'block'; } catch(e) {}
@@ -1191,7 +1252,6 @@ if (canPlayWebm) {
     tickContainer.appendChild(tickImg);
     tickLayer.appendChild(tickContainer);
 
-    // Attach tick metadata to the letter element so we can schedule/clear it later
     el._tick = {
       container: tickContainer,
       video: tickVideo,
@@ -1200,29 +1260,15 @@ if (canPlayWebm) {
       shown: false
     };
 
-    // Click handler (existing)
     el.addEventListener('click', () => onLetterClick(el, k));
     grid.appendChild(el);
   });
 
-  // After building, position all tick badges
   requestAnimationFrame(() => updateAllTickPositions());
   
-  // ADD THIS LINE to apply initial letter states based on settings
   updateLetterStates();
 }
-
-
-
     buildGrid();
-
-
-
-
-
-
-
-
 
 
     /*********************** Size sync ***********************/
@@ -1234,7 +1280,6 @@ if (canPlayWebm) {
       mouth.style.width = size + 'px';
       mouth.style.height = size + 'px';
       
-      // Update container size to match
       const containerSize = Math.round(size * 1.3);
       document.getElementById('mouthContainer').style.width = containerSize + 'px';
       document.getElementById('mouthContainer').style.height = containerSize + 'px';
@@ -1300,9 +1345,7 @@ if (canPlayWebm) {
 
     // ------------------------- Click handler (fixed) -------------------------
 
-
       function onLetterClick(el, key) {
-  // Check if this letter is disabled in settings
   if (state.settings.disabledLetters.has(key)) {
     return; // Don't proceed if letter is disabled
   }
@@ -1315,23 +1358,16 @@ if (canPlayWebm) {
   Array.from(grid.children).forEach(child => {
     if (child !== el) child.classList.add('shrink');
   });
-
-  // Clear any existing timeout on this letter
   if (el.grayscaleTimeout) {
     clearTimeout(el.grayscaleTimeout);
     el.grayscaleTimeout = null;
   }
-
-  // clear any previously scheduled tick for this same letter
   if (el._tick && el._tick.timeout) {
     clearTimeout(el._tick.timeout);
     el._tick.timeout = null;
   }
-
-  // Schedule grayscale effect after 4 seconds if enabled
   if (state.settings.grayscaleEnabled) {
     el.grayscaleTimeout = setTimeout(() => {
-      // If timeout wasn't cleared, apply class and cleanup reference
       el.classList.add('previous');
       el.grayscaleTimeout = null;
     }, 4000);
@@ -1339,8 +1375,6 @@ if (canPlayWebm) {
 
   startAudioAndScheduleReset(key, el);
   startVideoOverlay(key);
-
-  // schedule the tick badge for this letter if enabled
   if (state.settings.tickEnabled) {
     scheduleTickForLetter(el);
   }
@@ -1349,8 +1383,6 @@ if (canPlayWebm) {
   state.overallTimer = setTimeout(() => {
     immediateResetByAudio();
   }, OVERALL_SAFE_MS);
-
-  // Progress tracking: add key only once (Set)
   if (!state.playedLetters.has(key)) {
     state.playedLetters.add(key);
     updateProgress();
@@ -1364,20 +1396,17 @@ if (canPlayWebm) {
   const settingsButton = document.getElementById('settingsButton');
   const settingsMenu = document.getElementById('settingsMenu');
   
-  // Toggle menu on button click OR touch
   function toggleMenu(e) {
     if (e) {
       e.stopPropagation();
-      e.preventDefault(); // Prevent double-tap zoom on mobile
+      e.preventDefault(); 
     }
     settingsMenu.classList.toggle('active');
   }
   
-  // Add both click and touch event listeners
   settingsButton.addEventListener('click', toggleMenu);
   settingsButton.addEventListener('touchend', toggleMenu);
   
-  // Close menu when clicking/touching outside
   function closeMenu(e) {
     if (!settingsMenu.contains(e.target) && e.target !== settingsButton) {
       settingsMenu.classList.remove('active');
@@ -1387,28 +1416,21 @@ if (canPlayWebm) {
   document.addEventListener('click', closeMenu);
   document.addEventListener('touchend', closeMenu);
   
-  // Initialize letter toggles
   initLetterToggles();
-  
-  // Add event listeners for checkboxes
+
   document.getElementById('celebrationToggle').addEventListener('change', (e) => {
     state.settings.celebrationEnabled = e.target.checked;
     saveSettings();
   });
-  
   document.getElementById('tickToggle').addEventListener('change', (e) => {
     state.settings.tickEnabled = e.target.checked;
     saveSettings();
   });
-  
   document.getElementById('grayscaleToggle').addEventListener('change', (e) => {
     state.settings.grayscaleEnabled = e.target.checked;
     saveSettings();
-    // Apply changes immediately
     updateLetterStates();
   });
-  
-  // Load saved settings
   loadSettings();
 }
 
@@ -1422,12 +1444,6 @@ function initLetterToggles() {
     toggle.setAttribute('data-key', key);
     toggle.setAttribute('type', 'button');
     toggle.setAttribute('aria-label', `تفعيل/تعطيل ${key}`);
-    
-        // Use the first character of the key as a visual indicator
-
-    //toggle.textContent = key.charAt(0).toUpperCase();
-    //toggle.textContent = key; 
-
 
     const arabicLetters = {
   "alif": "ا", "baa": "ب", "taa": "ت", "thaa": "ث", "jeem": "ج",
@@ -1439,10 +1455,6 @@ function initLetterToggles() {
    };
 
 toggle.textContent = arabicLetters[key] || key.charAt(0).toUpperCase();
-
-
-
-
 
     toggle.addEventListener('click', () => {
       toggle.classList.toggle('inactive');
@@ -1470,8 +1482,6 @@ function updateLetterStates() {
       letter.classList.remove('inactive');
     }
   });
-  
-  // Update toggle buttons
   document.querySelectorAll('.letter-toggle').forEach(toggle => {
     const key = toggle.getAttribute('data-key');
     
@@ -1509,7 +1519,6 @@ function loadSettings() {
         state.settings.disabledLetters = new Set(settings.disabledLetters);
       }
       
-      // Update UI to reflect loaded settings
       document.getElementById('celebrationToggle').checked = state.settings.celebrationEnabled;
       document.getElementById('tickToggle').checked = state.settings.tickEnabled;
       document.getElementById('grayscaleToggle').checked = state.settings.grayscaleEnabled;
@@ -1520,15 +1529,10 @@ function loadSettings() {
     }
   }
 }
-
-
-
         /*********************** Celebration ***********************/
 
 function celebrate() {
   if (!state.settings.celebrationEnabled) return;
-  
-  
   document.querySelectorAll('.letter').forEach(letter => {
     if (letter.grayscaleTimeout) {
       clearTimeout(letter.grayscaleTimeout);
@@ -1544,7 +1548,6 @@ function celebrate() {
 
   startConfetti();
 }
-
 
     /*********************** Audio handling ***********************/
     function startAudioAndScheduleReset(key, letterEl) {
@@ -1616,7 +1619,6 @@ function celebrate() {
         mouthVideo.onerror = () => { unloadVideo(); };
       } catch (e) { unloadVideo(); }
     }
-
     /*********************** Overlay animation functions ***********************/
     function updateOverlayForSize(sizePx) {
       const borderPx = 6; // match border
@@ -1675,18 +1677,15 @@ function celebrate() {
       overlayCircle.style.strokeDashoffset = `${c}`;
       state.overlayActive = false;
     }
-
     /*********************** Circular Progress & Completion ***********************/
     function updateProgress() {
       const count = state.playedLetters.size;
       const total = LETTER_KEYS.length;
       const percent = (count / total) * 100;
       
-     // Update circular progress
-      // get radius from the SVG element so JS math always matches the SVG
       const radius = parseFloat(progressRingValue.getAttribute('r')) || 47;
       const circumference = 2 * Math.PI * radius;
-      // Cover 80% of the circle (from 1 o'clock to 11 o'clock)
+
       const arcLength = circumference * (5/6);
       const offset = arcLength - (percent / 100) * arcLength;
       
@@ -1698,15 +1697,11 @@ function celebrate() {
       if (gapTextPath) {
         gapTextPath.textContent = `${count} / ${total}`;
       }
-
-
-      // If completed and not yet handled, trigger celebration
       if (count >= total && !state.completed) {
         state.completed = true;
         setTimeout(() => {
           celebrate();
-        }, 3700); // 2 second delay
-        // auto reset after configured ms
+        }, 3700); 
         setTimeout(() => {
           resetProgress();
         }, AUTO_RESET_AFTER_COMPLETE_MS);
@@ -1724,23 +1719,13 @@ function positionTickForLetter(letterEl) {
   const h = rect.height;
   const cx = rect.left + w / 2 + window.scrollX;
   const cy = rect.top + h / 2 + window.scrollY;
-
-  // circle radius (we assume letter is circular).
   const R = Math.min(w, h) / 2;
-
-  // Angle system: degrees measured clockwise from top (0° = 12 o'clock).
-  const angleDeg = 133; // per your spec (between 4 and 5 o'clock)
+  const angleDeg = 133; 
   const rad = angleDeg * Math.PI / 180;
-
-  // Place the center of the tick on the circumference (makes it half-on/half-off visually).
   const d = R;
-
-  // Convert to page coords (screen Y positive down). Mapping derived for clockwise-from-top:
   const x = cx + Math.sin(rad) * d;
   const y = cy - Math.cos(rad) * d;
-
-  // pick badge size relative to letter size
-  const tickSize = Math.max(18, Math.round(w * 0.36)); // tweak multiplier if you want bigger/smaller
+  const tickSize = Math.max(18, Math.round(w * 0.36));
 
   t.container.style.left = x + 'px';
   t.container.style.top = y + 'px';
@@ -1755,19 +1740,14 @@ function updateAllTickPositions() {
   });
 }
 
-// schedule tick webm to play 4s after clicking the letter
 function scheduleTickForLetter(letterEl) {
   if (!letterEl || !letterEl._tick) return;
   const t = letterEl._tick;
-  if (t.shown) return; // already shown/persisted
-
-  // clear existing scheduled tick for this letter
+  if (t.shown) return; 
   if (t.timeout) {
     clearTimeout(t.timeout);
     t.timeout = null;
   }
-
-  // schedule at same 4 seconds as your grayscale (explicitly set)
   t.timeout = setTimeout(() => {
     playTickForLetter(letterEl);
     t.timeout = null;
@@ -1777,20 +1757,15 @@ function scheduleTickForLetter(letterEl) {
     function playTickForLetter(letterEl) {
   if (!letterEl || !letterEl._tick) return;
   const t = letterEl._tick;
-
-  // If placeholder already shown, show it and return
   if (t.shown) {
     t.container.style.display = 'block';
     t.img.style.display = 'block';
     return;
   }
-
-  // Show container but keep video hidden until we have a frame
   t.container.style.display = 'block';
   t.img.style.display = 'none';
   t.video.style.display = 'none';
 
-  // Safety flag & fallback
   let shown = false;
   function showVideo() {
     if (shown) return;
@@ -1799,7 +1774,6 @@ function scheduleTickForLetter(letterEl) {
     try { t.img.style.display = 'none'; } catch(e){}
   }
 
-  // If browser supports requestVideoFrameCallback, wait for first painted frame
   if (t.video.requestVideoFrameCallback) {
     const p = t.video.play();
     if (p && typeof p.then === 'function') {
@@ -1809,21 +1783,17 @@ function scheduleTickForLetter(letterEl) {
             showVideo();
           });
         } catch (e) {
-          // fallback to loadeddata
           t.video.addEventListener('loadeddata', showVideo, { once: true });
         }
       }).catch(() => {
-        // blocked — fallback to PNG
         t.video.style.display = 'none';
         t.img.style.display = 'block';
         t.shown = true;
       });
     } else {
-      // synchronous play fallback
       t.video.requestVideoFrameCallback(() => showVideo());
     }
   } else {
-    // Older browsers: wait for loadeddata then play (+ show)
     const onLoaded = () => {
       const p = t.video.play();
       if (p && typeof p.then === 'function') {
@@ -1838,7 +1808,6 @@ function scheduleTickForLetter(letterEl) {
       }
     };
     t.video.addEventListener('loadeddata', onLoaded, { once: true });
-    // start loading & attempt to play
     try { t.video.load(); } catch(e){}
     try {
       const p = t.video.play();
@@ -1846,7 +1815,6 @@ function scheduleTickForLetter(letterEl) {
     } catch(e){}
   }
 
-  // Fallback timeout: if nothing happens within ~1.2s, show PNG
   const fb = setTimeout(() => {
     if (!shown) {
       try { t.video.pause(); t.video.style.display = 'none'; } catch(e){}
@@ -1875,12 +1843,7 @@ function clearAllTicks() {
 
 
     function resetProgress() {
-
-                  // hide/stop ticks with the rest of the UI reset
       clearAllTicks();
-
-
-      // stop any confetti if still running
       stopConfetti();
       state.playedLetters.clear();
       state.completed = false;
@@ -1905,24 +1868,22 @@ function clearAllTicks() {
     for (let i = 0; i < amount; i++) {
     pieces.push({
       x: Math.random() * w,
-      y: Math.random() * -h * 0.8, // Start higher up
-      vx: (Math.random() - 0.5) * 8, // More horizontal spread
-      vy: Math.random() * 5 + 3, // Faster falling
-      r: Math.random() * 10 + 8, // Bigger pieces (was 4-10, now 8-18)
+      y: Math.random() * -h * 0.8, 
+      vx: (Math.random() - 0.5) * 8, 
+      vy: Math.random() * 5 + 3, 
+      r: Math.random() * 10 + 8,
       rot: Math.random() * 360,
-      rotSpeed: (Math.random() - 0.5) * 12, // Faster rotation
-      color: `hsl(${Math.floor(Math.random() * 360)},90%,60%)`, // More saturated
-      shape: Math.floor(Math.random() * 3), // Different shapes
+      rotSpeed: (Math.random() - 0.5) * 12, 
+      color: `hsl(${Math.floor(Math.random() * 360)},90%,60%)`,
+      shape: Math.floor(Math.random() * 3),
     });
   }
   return pieces;
 }
 
     function drawConfettiFrame() {
-  // Clear with transparency to allow fade effect
   confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
   
-  // Set global alpha for fade effect
   confettiCtx.globalAlpha = state.confettiFadeOpacity;
   
   const pieces = state.confettiPieces;
@@ -1934,17 +1895,16 @@ function clearAllTicks() {
     confettiCtx.rotate(p.rot * Math.PI / 180);
     confettiCtx.fillStyle = p.color;
     
-    // Draw different shapes
     switch(p.shape) {
-      case 0: // Rectangle (original)
+      case 0: 
         confettiCtx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
         break;
-      case 1: // Circle
+      case 1: 
         confettiCtx.beginPath();
         confettiCtx.arc(0, 0, p.r/2, 0, Math.PI * 2);
         confettiCtx.fill();
         break;
-      case 2: // Triangle
+      case 2:
         confettiCtx.beginPath();
         confettiCtx.moveTo(0, -p.r/2);
         confettiCtx.lineTo(p.r/2, p.r/2);
@@ -1956,15 +1916,12 @@ function clearAllTicks() {
     
     confettiCtx.restore();
 
-    // Update position
     p.x += p.vx;
     p.y += p.vy;
     p.rot += p.rotSpeed;
     
-    // Add slight gravity effect
     p.vy += 0.05;
 
-    // Recycle when out of screen
     if (p.y > window.innerHeight + 20 || p.x < -20 || p.x > window.innerWidth + 20) {
       p.y = Math.random() * -window.innerHeight * 0.5;
       p.x = Math.random() * window.innerWidth;
@@ -1972,30 +1929,24 @@ function clearAllTicks() {
       p.vy = Math.random() * 4 + 2;
     }
   }
-  
-  // Reset global alpha
   confettiCtx.globalAlpha = 1;
-  
-  // Only continue animation if not in fade mode
   if (state.confettiFadeStartTime === null) {
     state.confettiAnimationId = requestAnimationFrame(drawConfettiFrame);
   }
 }
     
     function startConfetti() {
-  // accessibility: respect prefers-reduced-motion AND settings
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || 
       !state.settings.celebrationEnabled) return;
   stopConfettiImmediately();
   resizeConfettiCanvas();
   
-  // Reset fade state
   state.confettiFadeOpacity = 1;
   state.confettiFadeStartTime = null;
   
   state.confettiPieces = createConfettiPieces(200);
   state.confettiAnimationId = requestAnimationFrame(drawConfettiFrame);
-  // stop after CONFETTI_DURATION_MS automatically
+
   state.confettiTimeoutId = setTimeout(() => stopConfetti(), CONFETTI_DURATION_MS);
 }
 
@@ -2009,24 +1960,18 @@ function clearAllTicks() {
     clearTimeout(state.confettiTimeoutId);
     state.confettiTimeoutId = null;
   }
-  
-  // Start fade out animation instead of immediately clearing
   state.confettiFadeOpacity = 1;
   state.confettiFadeStartTime = Date.now();
   
-  // Start fade animation
   function fadeOut() {
     const elapsed = Date.now() - state.confettiFadeStartTime;
-    const fadeDuration = 2500; // 2.5 seconds
+    const fadeDuration = 2500; 
     
     if (elapsed < fadeDuration) {
-      // Calculate current opacity
       state.confettiFadeOpacity = 1 - (elapsed / fadeDuration);
       
-      // Continue animation
       state.confettiAnimationId = requestAnimationFrame(fadeOut);
     } else {
-      // Fade complete, clear everything
       state.confettiFadeOpacity = 0;
       confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
       state.confettiPieces = [];
@@ -2034,11 +1979,8 @@ function clearAllTicks() {
       return;
     }
     
-    // Draw with current opacity
     drawConfettiFrame();
   }
-  
-  // Start the fade animation
   state.confettiAnimationId = requestAnimationFrame(fadeOut);
 }
 
@@ -2052,53 +1994,34 @@ function clearAllTicks() {
   state.confettiFadeStartTime = null;
   confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
 }
-
-
-
-
     /*********************** Initialization ***********************/
-    // initialize progress to 0
     updateProgress();
-  
     initSettingsMenu();
-
-   
-
-    // ensure overlay sizing after load
     window.addEventListener('load', () => {
       setTimeout(() => {
         const sizePx = parseFloat(getComputedStyle(mouth).width) || 180;
         updateOverlayForSize(sizePx);
       }, 100);
     });
-
-    // make sure confetti canvas resizes on orientation change
     window.addEventListener('orientationchange', resizeConfettiCanvas);
 
     window.addEventListener('resize', updateAllTickPositions);
     window.addEventListener('scroll', updateAllTickPositions, { passive: true });
     window.addEventListener('orientationchange', updateAllTickPositions);
 
-
     /*********************** Background Image Controls ***********************/
 const bgContainer = document.getElementById('bgContainer');
 const bgImage = document.getElementById('bgImage');
-
-// Initial background settings
 let bgSettings = {
   scale: 1,
   positionX: 0,
   positionY: 0,
   opacity: 0.3
 };
-
-// Function to update background properties
 function updateBackground() {
   bgImage.style.transform = `translate(${bgSettings.positionX}px, ${bgSettings.positionY}px) scale(${bgSettings.scale})`;
   bgImage.style.opacity = bgSettings.opacity;
 }
-
-// Function to adjust background (call this after visual inspection)
 function adjustBackground(settings = {}) {
   if (settings.scale !== undefined) bgSettings.scale = settings.scale;
   if (settings.positionX !== undefined) bgSettings.positionX = settings.positionX;
@@ -2107,17 +2030,10 @@ function adjustBackground(settings = {}) {
   
   updateBackground();
 }
-
-
-
-// Make the adjustment function available globally
 window.adjustBackground = adjustBackground;
 
 // Initialize background
 updateBackground();
-
-
-
   </script>
 </body>
 </html>
