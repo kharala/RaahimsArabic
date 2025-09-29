@@ -140,7 +140,7 @@
   font-size: 3.0rem;
   font-family: "Roboto", Georgia, "Times New Roman", serif;
   font-weight: 600;
-  color: #431fa1;
+  color: #00A86B;
   margin: 0;
   text-align: center;
   flex-grow: 1;
@@ -336,6 +336,12 @@
 }
 
 
+:root {
+  --mouth-overlay-color-1: #000000;
+  --mouth-overlay-color-2: #000000;
+}
+
+
     body {
       font-family: "Playfair Display", Georgia, "Times New Roman", serif;
       background: transparent;
@@ -388,6 +394,9 @@
       justify-content: center;
     }
 
+
+
+
     .circular-progress {
       position: absolute;
       top: 0;
@@ -428,26 +437,35 @@
     }
 
     .progress-text {
-      font-size: 14px;
-      color: #333;
-      margin: 0;
-    }
+  font-size: 14px;
+  color: white;  /* Change from #333 to white */
+  margin: 0;
+  text-shadow: 
+    1px 1px 0 black,
+    -1px 1px 0 black,
+    1px -1px 0 black,
+    -1px -1px 0 black; /* Add black outline */
+  font-weight: bold;    /* Optional: makes it more readable */
+}
 
 
     
     .gap-text {
-      font-size: 8px;
-      font-weight: 700;
-      fill: #333;
-      pointer-events: none; 
-    }
+  font-size: 8px;
+  font-weight: 700;
+  fill: white !important; /* White fill for SVG */
+  stroke: #00A86B !important; /* Black stroke for SVG */
+  stroke-width: 1.3px;
+  paint-order: stroke;
+  pointer-events: none;
+}
 
 
     .mouth {
       transition: transform 0.18s ease;
       background: white;
       border-radius: 50%;
-      border: 6px solid #FFFF00; 
+      border: 6px solid #00A86B; 
       display: flex;
       align-items: center;
       justify-content: center;
@@ -486,7 +504,7 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 3;
+      z-index: 2002;
       overflow: visible;
       display: block;
     }
@@ -501,6 +519,7 @@
       stroke: #000;
       stroke-linecap: round;
       transition: stroke-dashoffset 0.5s ease-in-out;
+      stroke: url(#overlayGradient);
     }
 
 
@@ -740,7 +759,7 @@
     text-align: center;
     font-size: 2.2rem;
     font-weight: 600;
-    color: #431fa1;
+    color: #00A86B;
   }
   
   .page-title::after {
@@ -749,7 +768,7 @@
     text-align: center;
     font-size: 2.2rem;
     font-weight: 600;
-    color: #431fa1;
+    color: #00A86B;
   }
 
   /* Settings adjustments */
@@ -983,6 +1002,7 @@
 
       <!-- Circular progress container -->
       <div class="mouth-container" id="mouthContainer">
+
         <!-- Circular progress SVG -->
         <div class="circular-progress" id="circularProgress">
           <svg class="progress-ring" viewBox="0 0 100 100">
@@ -1009,20 +1029,35 @@
         <div class="progress-text-container">
           <div class="progress-text" id="progressText">0 / 30</div>
         </div>
+
+
         <div class="circle mouth" id="mouth" aria-label="شكل الفم">
           <img id="mouthDefault" src="mouths/default.png" alt="Default mouth">
           <video id="mouthVideo" playsinline muted></video>
 
-          <div class="mouth-overlay" id="mouthOverlay" aria-hidden="true">
-            <svg id="mouthOverlaySvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100">
 
-              <circle id="overlayCircle" class="overlay-ring" cx="50" cy="50" r="44" stroke-width="6"></circle>
-            </svg>
-          </div>    
+
+
+          <div class="mouth-overlay" id="mouthOverlay" aria-hidden="true">
+  <svg id="mouthOverlaySvg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100">
+    <circle id="overlayCircle" class="overlay-ring" cx="50" cy="50" r="44" stroke-width="10"
+            stroke="url(#overlayGradient)"/>
+    <defs>
+      <linearGradient id="overlayGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="var(--mouth-overlay-color-1)"/>
+        <stop offset="100%" stop-color="var(--mouth-overlay-color-2)"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>  
 
         </div>
       </div>
     </div>
+
+
+
+
                            <!-- Legend container -->
 
 <div class="legend-container">
@@ -1159,12 +1194,13 @@
       confettiTimeoutId: null,
       confettiFadeOpacity: 1,
       confettiFadeStartTime: null,
+
       settings: {
         celebrationEnabled: true,
         tickEnabled: true,
         grayscaleEnabled: true,
         disabledLetters: new Set()
-      }
+      },
     };
 
     /*********************** Legend ***********************/
@@ -1287,10 +1323,34 @@ if (canPlayWebm) {
     window.addEventListener('load', () => { syncMouthSize(); setTimeout(syncMouthSize, 60); });
     window.addEventListener('resize', () => { syncMouthSize(); resizeConfettiCanvas(); });
 
+
+
     /*********************** Timers / cleanup ***********************/
+
     function clearAudioTimer() { if (state.audioTimer) { clearTimeout(state.audioTimer); state.audioTimer = null; } }
     function clearMetaTimeout() { if (state.metaTimeout) { clearTimeout(state.metaTimeout); state.metaTimeout = null; } }
     function clearOverallTimer() { if (state.overallTimer) { clearTimeout(state.overallTimer); state.overallTimer = null; } }
+
+
+
+/*********************** Overlay Color Functions ***********************/
+function setOverlayColors(colors) {
+  console.log('Setting overlay colors to:', colors);
+  
+  // Set the CSS variables on the root element
+  document.documentElement.style.setProperty('--mouth-overlay-color-1', colors[0]);
+  document.documentElement.style.setProperty('--mouth-overlay-color-2', colors[1]);
+}
+
+function resetOverlayColors() {
+  console.log('Resetting overlay colors to black');
+  
+  // Reset to default black on the root element
+  document.documentElement.style.setProperty('--mouth-overlay-color-1', '#000000');
+  document.documentElement.style.setProperty('--mouth-overlay-color-2', '#000000');
+}
+
+
 
     function unloadVideo() {
       try { mouthVideo.pause(); } catch(e){}
@@ -1315,28 +1375,33 @@ if (canPlayWebm) {
     }
 
     function cancelPlayback(resetUI = true) {
-      unloadAudio();
-      unloadVideo();
-      clearOverallTimer();
-      overlayReset();
-      if (resetUI && state.currentEl) {
-        state.currentEl.classList.remove('active');
-        state.currentEl = null;
-        state.currentKey = null;
-      }
-      Array.from(grid.children).forEach(child => child.classList.remove('shrink'));
-    }
+  unloadAudio();
+  unloadVideo();
+  clearOverallTimer();
+  overlayReset();
+  
+  
+  if (resetUI && state.currentEl) {
+    state.currentEl.classList.remove('active');
+    state.currentEl = null;
+    state.currentKey = null;
+  }
+  Array.from(grid.children).forEach(child => child.classList.remove('shrink'));
+}
 
-    function immediateResetByAudio() {
-      unloadVideo();
-      if (state.currentEl) state.currentEl.classList.remove('active');
-      state.currentEl = null;
-      state.currentKey = null;
-      Array.from(grid.children).forEach(child => child.classList.remove('shrink'));
-      unloadAudio();
-      clearOverallTimer();
-      overlayReset();
-    }
+
+
+function immediateResetByAudio() {
+  unloadVideo();
+  
+  if (state.currentEl) state.currentEl.classList.remove('active');
+  state.currentEl = null;
+  state.currentKey = null;
+  Array.from(grid.children).forEach(child => child.classList.remove('shrink'));
+  unloadAudio();
+  clearOverallTimer();
+  overlayReset();
+}
 
     window.addEventListener('pagehide', () => { cancelPlayback(true); stopConfettiImmediately(); });
     window.addEventListener('beforeunload', () => { cancelPlayback(true); stopConfettiImmediately(); });
@@ -1350,12 +1415,20 @@ if (canPlayWebm) {
   
   cancelPlayback(true);
 
+  const letterIndex = LETTER_KEYS.indexOf(key);
+  const overlayColors = COLORS[letterIndex] || ['#000000', '#000000'];
+  
+  // Set overlay colors instead of creating new stroke
+  setOverlayColors(overlayColors);
+
   state.currentEl = el;
   state.currentKey = key;
   el.classList.add('active');
+
   Array.from(grid.children).forEach(child => {
     if (child !== el) child.classList.add('shrink');
   });
+
   if (el.grayscaleTimeout) {
     clearTimeout(el.grayscaleTimeout);
     el.grayscaleTimeout = null;
@@ -1371,7 +1444,8 @@ if (canPlayWebm) {
     }, 4000);
   }
 
-  startAudioAndScheduleReset(key, el);
+  startAudioAndScheduleReset(key, el, overlayColors);
+
   startVideoOverlay(key);
   if (state.settings.tickEnabled) {
     scheduleTickForLetter(el);
@@ -1548,7 +1622,7 @@ function celebrate() {
 }
 
     /*********************** Audio handling ***********************/
-    function startAudioAndScheduleReset(key, letterEl) {
+    function startAudioAndScheduleReset(key, letterEl, overlayColors) {
       unloadAudio();
       clearAudioTimer();
       clearMetaTimeout();
@@ -1566,6 +1640,8 @@ function celebrate() {
       const onMeta = () => {
         try { audio.removeEventListener('loadedmetadata', onMeta); } catch(e){}
         const dur = (isFinite(audio.duration) && audio.duration > 0) ? audio.duration : null;
+        
+
         scheduleResetFromDuration(dur, audio, letterEl);
       };
       audio.addEventListener('loadedmetadata', onMeta, { once: true });
@@ -1573,6 +1649,8 @@ function celebrate() {
       state.metaTimeout = setTimeout(() => {
         try { audio.removeEventListener('loadedmetadata', onMeta); } catch(e){}
         const dur = (isFinite(audio.duration) && audio.duration > 0) ? audio.duration : null;
+
+
         scheduleResetFromDuration(dur, audio, letterEl);
       }, META_TIMEOUT_MS);
 
@@ -1619,7 +1697,7 @@ function celebrate() {
     }
     /*********************** Overlay animation functions ***********************/
     function updateOverlayForSize(sizePx) {
-      const borderPx = 6; // match border
+      const borderPx = 10; // match border
       mouthOverlaySvg.setAttribute('viewBox', `0 0 ${sizePx} ${sizePx}`);
       mouthOverlaySvg.setAttribute('width', sizePx);
       mouthOverlaySvg.setAttribute('height', sizePx);
